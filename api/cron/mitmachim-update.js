@@ -19,11 +19,23 @@ export default async function handler(req, res) {
   let browser = null;
 
   try {
+    // Configure chromium for serverless
+    chromium.setGraphicsMode = false;
+
     browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [
+        ...chromium.args,
+        '--disable-gpu',
+        '--disable-dev-shm-usage',
+        '--disable-setuid-sandbox',
+        '--no-sandbox',
+        '--single-process',
+        '--no-zygote'
+      ],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
-      headless: chromium.headlessMode,
+      headless: true,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
