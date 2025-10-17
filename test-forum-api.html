@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Forum API</title>
+</head>
+<body>
+    <h1>Testing Forum API</h1>
+    <div id="result">Loading...</div>
+
+    <script>
+        async function testAPI() {
+            const apiKey = '***REDACTED***';
+            const forumUrl = 'https://forums.jtechforums.org';
+            const username = 'TripleU';
+            const corsProxy = 'https://api.allorigins.win/raw?url=';
+
+            const resultDiv = document.getElementById('result');
+
+            try {
+                // Test the user_actions endpoint
+                const apiUrl = `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`;
+                console.log('Testing URL:', corsProxy + encodeURIComponent(apiUrl));
+
+                const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
+                const data = await response.json();
+
+                console.log('Response:', data);
+
+                if (data.user_actions && data.user_actions.length > 0) {
+                    const latest = data.user_actions[0];
+                    resultDiv.innerHTML = `
+                        <h2>Latest Post Found!</h2>
+                        <p><strong>Title:</strong> ${latest.title}</p>
+                        <p><strong>Excerpt:</strong> ${latest.excerpt}</p>
+                        <p><strong>Created:</strong> ${latest.created_at}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<p>No posts found</p>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML = `<p style="color:red">Error: ${error.message}</p>`;
+            }
+        }
+
+        testAPI();
+    </script>
+</body>
+</html>

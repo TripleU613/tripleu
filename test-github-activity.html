@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GitHub Activity Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #111;
+            color: #ddd;
+        }
+        .activity {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            background: #1a1a1a;
+        }
+        .activity:hover {
+            border-color: #4a9eff;
+        }
+        pre {
+            background: #222;
+            padding: 10px;
+            overflow: auto;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .event-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .PushEvent { background: #0d6efd; }
+        .CreateEvent { background: #198754; }
+        .IssuesEvent { background: #dc3545; }
+        .PullRequestEvent { background: #6f42c1; }
+        .WatchEvent { background: #ffc107; color: #000; }
+        .ForkEvent { background: #20c997; }
+        .CommitCommentEvent { background: #6c757d; }
+    </style>
+</head>
+<body>
+    <h1>GitHub Activity for TripleU613</h1>
+    <div id="activities"></div>
+
+    <script>
+        const token = '***REDACTED***';
+        const username = 'TripleU613';
+        const activitiesDiv = document.getElementById('activities');
+
+        async function fetchGitHubActivity() {
+            try {
+                // Fetch public events
+                const response = await fetch(`https://api.github.com/users/${username}/events/public`, {
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const events = await response.json();
+
+                console.log('All events:', events);
+
+                // Process and display events
+                if (events.length > 0) {
+                    events.slice(0, 10).forEach(event => {
+                        const activityDiv = document.createElement('div');
+                        activityDiv.className = 'activity';
+
+                        let description = '';
+                        let details = '';
+
+                        switch(event.type) {
+                            case 'PushEvent':
+                                const commits = event.payload.commits || [];
+                                description = `Pushed ${commits.length} commit${commits.length !== 1 ? 's' : ''} to ${event.repo.name}`;
+                                if (commits.length > 0) {
+                                    details = `<p><strong>Latest commit:</strong> "${commits[0].message}"</p>`;
+                                }
+                                break;
+
+                            case 'CreateEvent':
+                                description = `Created ${event.payload.ref_type} ${event.payload.ref || ''} in ${event.repo.name}`;
+                                break;
+
+                            case 'DeleteEvent':
+                                description = `Deleted ${event.payload.ref_type} ${event.payload.ref} in ${event.repo.name}`;
+                                break;
+
+                            case 'IssuesEvent':
+                                description = `${event.payload.action} issue #${event.payload.issue.number} in ${event.repo.name}`;
+                                details = `<p><strong>Issue:</strong> "${event.payload.issue.title}"</p>`;
+                                break;
+
+                            case 'IssueCommentEvent':
+                                description = `Commented on issue #${event.payload.issue.number} in ${event.repo.name}`;
+                                details = `<p><strong>Issue:</strong> "${event.payload.issue.title}"</p>`;
+                                break;
+
+                            case 'PullRequestEvent':
+                                description = `${event.payload.action} pull request #${event.payload.pull_request.number} in ${event.repo.name}`;
+                                details = `<p><strong>PR:</strong> "${event.payload.pull_request.title}"</p>`;
+                                break;
+
+                            case 'PullRequestReviewEvent':
+                                description = `Reviewed pull request #${event.payload.pull_request.number} in ${event.repo.name}`;
+                                break;
+
+                            case 'PullRequestReviewCommentEvent':
+                                description = `Commented on pull request #${event.payload.pull_request.number} in ${event.repo.name}`;
+                                break;
+
+                            case 'WatchEvent':
+                                description = `Starred ${event.repo.name}`;
+                                break;
+
+                            case 'ForkEvent':
+                                description = `Forked ${event.repo.name}`;
+                                break;
+
+                            case 'ReleaseEvent':
+                                description = `${event.payload.action} release ${event.payload.release.tag_name} in ${event.repo.name}`;
+                                break;
+
+                            case 'PublicEvent':
+                                description = `Made ${event.repo.name} public`;
+                                break;
+
+                            case 'MemberEvent':
+                                description = `${event.payload.action} ${event.payload.member.login} to ${event.repo.name}`;
+                                break;
+
+                            case 'CommitCommentEvent':
+                                description = `Commented on a commit in ${event.repo.name}`;
+                                break;
+
+                            default:
+                                description = `${event.type.replace('Event', '')} in ${event.repo.name}`;
+                        }
+
+                        const createdAt = new Date(event.created_at);
+                        const timeAgo = getTimeAgo(createdAt);
+
+                        activityDiv.innerHTML = `
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <strong>${description}</strong>
+                                    <span class="event-type ${event.type}">${event.type.replace('Event', '')}</span>
+                                    ${details}
+                                    <p style="color: #666; font-size: 12px; margin-top: 10px;">
+                                        <i class="fas fa-clock"></i> ${timeAgo}
+                                        | <a href="https://github.com/${event.repo.name}" target="_blank" style="color: #4a9eff;">View Repo</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <details>
+                                <summary>View Raw Event Data</summary>
+                                <pre>${JSON.stringify(event, null, 2)}</pre>
+                            </details>
+                        `;
+
+                        activitiesDiv.appendChild(activityDiv);
+                    });
+
+                    // Show most recent activity in a special box
+                    const latestEvent = events[0];
+                    const latestDiv = document.createElement('div');
+                    latestDiv.style.cssText = 'background: #0d1117; border: 2px solid #30363d; padding: 20px; margin-bottom: 30px; border-radius: 10px;';
+
+                    let latestDescription = getEventDescription(latestEvent);
+
+                    latestDiv.innerHTML = `
+                        <h2 style="color: #58a6ff; margin-top: 0;">Latest GitHub Activity</h2>
+                        <p style="color: #c9d1d9; font-size: 16px;">${latestDescription}</p>
+                        <p style="color: #8b949e; font-size: 14px;">
+                            <i class="fas fa-clock"></i> ${getTimeAgo(new Date(latestEvent.created_at))}
+                            in <a href="https://github.com/${latestEvent.repo.name}" target="_blank" style="color: #58a6ff;">${latestEvent.repo.name}</a>
+                        </p>
+                    `;
+
+                    activitiesDiv.insertBefore(latestDiv, activitiesDiv.firstChild);
+
+                } else {
+                    activitiesDiv.innerHTML = '<p>No recent activity found</p>';
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                activitiesDiv.innerHTML = `<p style="color: #f44336;">Error fetching activity: ${error.message}</p>`;
+            }
+        }
+
+        function getEventDescription(event) {
+            switch(event.type) {
+                case 'PushEvent':
+                    const commits = event.payload.commits || [];
+                    return `Pushed ${commits.length} commit${commits.length !== 1 ? 's' : ''}${commits.length > 0 ? `: "${commits[0].message}"` : ''}`;
+
+                case 'CreateEvent':
+                    return `Created ${event.payload.ref_type} ${event.payload.ref || 'repository'}`;
+
+                case 'IssuesEvent':
+                    return `${event.payload.action.charAt(0).toUpperCase() + event.payload.action.slice(1)} issue: "${event.payload.issue.title}"`;
+
+                case 'PullRequestEvent':
+                    return `${event.payload.action.charAt(0).toUpperCase() + event.payload.action.slice(1)} pull request: "${event.payload.pull_request.title}"`;
+
+                case 'WatchEvent':
+                    return 'Starred a repository';
+
+                case 'ForkEvent':
+                    return 'Forked a repository';
+
+                case 'IssueCommentEvent':
+                    return `Commented on issue: "${event.payload.issue.title}"`;
+
+                default:
+                    return event.type.replace('Event', '');
+            }
+        }
+
+        function getTimeAgo(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            const intervals = {
+                year: 31536000,
+                month: 2592000,
+                week: 604800,
+                day: 86400,
+                hour: 3600,
+                minute: 60
+            };
+
+            for (const [unit, secondsInUnit] of Object.entries(intervals)) {
+                const interval = Math.floor(seconds / secondsInUnit);
+                if (interval >= 1) {
+                    return `${interval} ${unit}${interval !== 1 ? 's' : ''} ago`;
+                }
+            }
+            return 'Just now';
+        }
+
+        fetchGitHubActivity();
+    </script>
+</body>
+</html>

@@ -402,8 +402,8 @@
             box-shadow: 0 0 15px rgba(156, 163, 175, 0.2) !important;
         }
 
-        /* Contact and Payment Card Animations */
-        .contact-card, .payment-card {
+        /* Contact, Payment, Forum, and GitHub Card Animations */
+        .contact-card, .payment-card, .forum-post-card, .github-activity-card {
             animation: subtle-float 6s ease-in-out infinite;
         }
 
@@ -429,6 +429,65 @@
 
         .payment-card:nth-child(4) {
             animation-delay: 5.5s;
+        }
+
+        /* Forum post card specific animation */
+        .forum-post-card {
+            animation-delay: 0.5s;
+            position: relative;
+        }
+
+        /* GitHub activity card specific animation */
+        .github-activity-card {
+            animation-delay: 1s;
+            position: relative;
+        }
+
+        .forum-post-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            background-size: 400% 400%;
+            animation: gradient-border 8s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .forum-post-card:hover::before {
+            opacity: 1;
+        }
+
+        .github-activity-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+            background-size: 400% 400%;
+            animation: gradient-border 8s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .github-activity-card:hover::before {
+            opacity: 1;
+        }
+
+        @keyframes gradient-border {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         @keyframes subtle-float {
@@ -756,8 +815,8 @@
 
 <!-- Support Section -->
 <div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
-    <h2 class="text-lg sm:text-xl font-semibold mb-1 text-center">Support My Work</h2>
-    <p class="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 text-center">Choose your preferred payment method</p>
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-1">Support My Work</h2>
+    <p class="text-gray-500 text-xs sm:text-sm mb-4 sm:mb-6 text-center">Choose your preferred payment method</p>
 
     <!-- Payment Method Buttons -->
     <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 mb-4 sm:mb-6">
@@ -936,6 +995,18 @@
         </div>
     </div>
 </div>
+
+<!-- Latest GitHub Activity Section -->
+<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest GitHub Activity</h2>
+    <div id="latest-github" class="text-center">
+        <div class="animate-pulse">
+            <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-2/3 mx-auto"></div>
+        </div>
+    </div>
+</div>
 </div>
 
         <footer class="py-6 border-t border-gray-900 mt-8">
@@ -985,255 +1056,218 @@
         // Update copyright year
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
-        // Fetch Latest Forum Post
+        // Fetch Latest Forum Post - Improved CORS handling
         async function fetchLatestForumPost() {
             const apiKey = '***REDACTED***';
             const forumUrl = 'https://forums.jtechforums.org';
             const username = 'TripleU';
+            const latestPostContainer = document.getElementById('latest-post');
 
-            // Use CORS proxy to bypass CORS restrictions
-            const corsProxy = 'https://api.allorigins.win/raw?url=';
-            // Alternative proxies if needed:
-            // 'https://corsproxy.io/?'
-            // 'https://cors-anywhere.herokuapp.com/'
+            // Try multiple CORS proxy services in order
+            const corsProxies = [
+                { url: 'https://api.allorigins.win/get?url=', isWrapped: true },
+                { url: 'https://corsproxy.io/?', isWrapped: false },
+                { url: 'https://api.allorigins.win/raw?url=', isWrapped: false },
+                { url: 'https://cors.bridged.cc/', isWrapped: false }
+            ];
 
-            try {
-                // First try to get user's posts directly through CORS proxy
-                const apiUrl = `${forumUrl}/posts.json?api_key=${apiKey}&api_username=${username}`;
-                const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch posts');
+            // Different API endpoints to try
+            const endpoints = [
+                {
+                    url: `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`,
+                    type: 'user_actions'
+                },
+                {
+                    url: `${forumUrl}/search.json?q=@${username}%20order:latest`,
+                    type: 'search'
+                },
+                {
+                    url: `${forumUrl}/u/${username}/activity.json`,
+                    type: 'public_activity'
                 }
+            ];
 
-                const data = await response.json();
-                const latestPostContainer = document.getElementById('latest-post');
+            let success = false;
 
-                // Filter to only show TripleU's posts
-                const myPosts = data.latest_posts ? data.latest_posts.filter(post =>
-                    post.username && post.username.toLowerCase() === username.toLowerCase()
-                ) : [];
+            // Try each combination of proxy and endpoint
+            for (const proxy of corsProxies) {
+                if (success) break;
 
-                if (myPosts.length > 0) {
-                    const latestPost = myPosts[0];
+                for (const endpoint of endpoints) {
+                    if (success) break;
 
-                    // Parse and format the post content
-                    const formattedContent = formatDiscourseContent(latestPost.cooked || '');
+                    try {
+                        console.log(`Trying ${proxy.url} with ${endpoint.type}`);
+                        const fullUrl = proxy.url + encodeURIComponent(endpoint.url);
 
-                    // Create post display with better formatting
-                    latestPostContainer.innerHTML = `
-                        <div class="bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
-                            <a href="${forumUrl}/t/${latestPost.topic_slug}/${latestPost.topic_id}/${latestPost.post_number}"
-                               target="_blank" class="block">
-                                <div class="flex items-start justify-between mb-3">
-                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                        ${latestPost.topic_title || 'Forum Post'}
-                                    </h3>
-                                    <span class="text-blue-400 ml-2 flex-shrink-0">
-                                        <i class="fas fa-external-link-alt text-xs"></i>
-                                    </span>
-                                </div>
-                                <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
-                                    ${formattedContent}
-                                </div>
-                                <div class="flex flex-wrap justify-between items-center text-xs text-gray-500 gap-2">
-                                    <span>
-                                        <i class="fas fa-clock mr-1"></i>
-                                        ${formatDate(latestPost.created_at)}
-                                    </span>
-                                    <div class="flex items-center gap-4">
-                                        ${latestPost.reply_count > 0 ? `
-                                            <span>
-                                                <i class="fas fa-comments mr-1"></i>
-                                                ${latestPost.reply_count} ${latestPost.reply_count === 1 ? 'reply' : 'replies'}
+                        const response = await fetch(fullUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (!response.ok) {
+                            console.log(`Failed with status ${response.status}`);
+                            continue;
+                        }
+
+                        let data;
+                        if (proxy.isWrapped) {
+                            // AllOrigins GET wraps the response
+                            const wrapper = await response.json();
+                            if (wrapper.status && wrapper.status.http_code !== 200) {
+                                console.log(`Wrapped response failed with ${wrapper.status.http_code}`);
+                                continue;
+                            }
+                            data = JSON.parse(wrapper.contents);
+                        } else {
+                            data = await response.json();
+                        }
+
+                        // Process based on endpoint type
+                        let latestPost = null;
+
+                        if (endpoint.type === 'user_actions' && data.user_actions?.length > 0) {
+                            const action = data.user_actions[0];
+                            // Extract likes from various possible fields
+                            let likes = action.likes_received || action.like_count || 0;
+
+                            // If we have actions_summary, get like count from there
+                            if (action.actions_summary && Array.isArray(action.actions_summary)) {
+                                const likeAction = action.actions_summary.find(a => a.id === 2); // ID 2 is typically 'like' in Discourse
+                                if (likeAction) {
+                                    likes = likeAction.count || likeAction.acted ? 1 : 0;
+                                }
+                            }
+
+                            latestPost = {
+                                title: action.title,
+                                excerpt: action.excerpt,
+                                created_at: action.created_at,
+                                topic_id: action.topic_id,
+                                post_number: action.post_number || 1,
+                                slug: action.slug,
+                                likes: likes,
+                                replies: action.reply_count || 0
+                            };
+                        } else if (endpoint.type === 'search' && data.posts?.length > 0) {
+                            // Filter for posts by TripleU only
+                            const userPosts = data.posts.filter(p =>
+                                p.username?.toLowerCase() === username.toLowerCase()
+                            );
+                            if (userPosts.length > 0) {
+                                const post = userPosts[0];
+                                let likes = post.like_count || post.likes || 0;
+
+                                // Check actions_summary for likes
+                                if (post.actions_summary && Array.isArray(post.actions_summary)) {
+                                    const likeAction = post.actions_summary.find(a => a.id === 2);
+                                    if (likeAction) {
+                                        likes = likeAction.count || 0;
+                                    }
+                                }
+
+                                latestPost = {
+                                    title: post.topic_title_headline || post.topic_title,
+                                    excerpt: post.blurb || post.cooked?.substring(0, 200),
+                                    created_at: post.created_at,
+                                    topic_id: post.topic_id,
+                                    post_number: post.post_number,
+                                    slug: post.topic_slug,
+                                    likes: likes,
+                                    replies: post.reply_count || 0
+                                };
+                            }
+                        } else if (endpoint.type === 'public_activity' && Array.isArray(data) && data.length > 0) {
+                            const activity = data[0];
+                            let likes = activity.like_count || activity.likes || 0;
+
+                            // Check for actions_summary
+                            if (activity.actions_summary && Array.isArray(activity.actions_summary)) {
+                                const likeAction = activity.actions_summary.find(a => a.id === 2);
+                                if (likeAction) {
+                                    likes = likeAction.count || 0;
+                                }
+                            }
+
+                            latestPost = {
+                                title: activity.topic_title || activity.title || 'Recent Activity',
+                                excerpt: activity.excerpt || 'View on forum',
+                                created_at: activity.created_at,
+                                topic_id: activity.topic_id,
+                                post_number: activity.post_number || 1,
+                                slug: activity.topic_slug || activity.slug,
+                                likes: likes,
+                                replies: activity.reply_count || 0
+                            };
+                        }
+
+                        if (latestPost) {
+                            // Log the post data for debugging reactions
+                            console.log('Latest post data:', latestPost);
+                            console.log('Raw API response sample:', data);
+
+                            // Clean up the excerpt
+                            const cleanExcerpt = latestPost.excerpt ?
+                                stripHtml(latestPost.excerpt).substring(0, 200) :
+                                'View the full post on the forum...';
+
+                            latestPostContainer.innerHTML = `
+                                <div class="forum-post-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+                                    <a href="${forumUrl}/t/${latestPost.slug}/${latestPost.topic_id}/${latestPost.post_number}"
+                                       target="_blank" class="block">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                                ${latestPost.title}
+                                            </h3>
+                                            <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                                Read full post <i class="fas fa-arrow-right ml-1"></i>
                                             </span>
-                                        ` : ''}
-                                        <span class="text-blue-400 hover:text-blue-300 font-medium">
-                                            Read full post <i class="fas fa-arrow-right ml-1"></i>
-                                        </span>
-                                    </div>
+                                        </div>
+                                        <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
+                                            ${cleanExcerpt}
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <span>
+                                                <i class="fas fa-clock mr-1"></i>
+                                                ${formatDate(latestPost.created_at)}
+                                            </span>
+                                            <div class="flex items-center gap-3">
+                                                ${latestPost.replies > 0 ? `
+                                                    <span>
+                                                        <i class="fas fa-comments mr-1"></i>
+                                                        ${latestPost.replies}
+                                                    </span>
+                                                ` : ''}
+                                                <span class="text-gray-500">
+                                                    <i class="fas fa-heart mr-1"></i>
+                                                    ${latestPost.likes || 0} ${latestPost.likes === 1 ? 'like' : 'likes'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </a>
                                 </div>
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    // Try alternative endpoint if no posts found
-                    console.log('No posts found in main endpoint, trying user activity...');
-                    fetchUserActivityPosts();
+                            `;
+                            success = true;
+                            console.log('Successfully fetched forum post!');
+                            break;
+                        }
+                    } catch (error) {
+                        console.error(`Error with ${proxy.url} and ${endpoint.type}:`, error);
+                        continue;
+                    }
                 }
-            } catch (error) {
-                console.error('Error fetching forum post:', error);
-                console.log('Main endpoint failed, trying fallback...');
-                fetchUserActivityPosts(); // Try fallback method
             }
-        }
 
-        // Fallback method to fetch user activity
-        async function fetchUserActivityPosts() {
-            const apiKey = '***REDACTED***';
-            const forumUrl = 'https://forums.jtechforums.org';
-            const username = 'TripleU';
-            const corsProxy = 'https://api.allorigins.win/raw?url=';
-
-            try {
-                const apiUrl = `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`;
-                const response = await fetch(corsProxy + encodeURIComponent(apiUrl));
-
-                if (!response.ok) throw new Error('Failed to fetch user activity');
-
-                const data = await response.json();
-                const latestPostContainer = document.getElementById('latest-post');
-
-                if (data.user_actions && data.user_actions.length > 0) {
-                    const latestAction = data.user_actions[0];
-
-                    latestPostContainer.innerHTML = `
-                        <div class="bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
-                            <a href="${forumUrl}/t/${latestAction.slug}/${latestAction.topic_id}/${latestAction.post_number || 1}"
-                               target="_blank" class="block">
-                                <div class="flex items-start justify-between mb-3">
-                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                        ${latestAction.title || 'Forum Post'}
-                                    </h3>
-                                    <span class="text-blue-400 ml-2 flex-shrink-0">
-                                        <i class="fas fa-external-link-alt text-xs"></i>
-                                    </span>
-                                </div>
-                                <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
-                                    ${latestAction.excerpt || 'View the full post on the forum...'}
-                                </div>
-                                <div class="flex justify-between items-center text-xs text-gray-500">
-                                    <span>
-                                        <i class="fas fa-clock mr-1"></i>
-                                        ${formatDate(latestAction.created_at)}
-                                    </span>
-                                    <span class="text-blue-400 hover:text-blue-300 font-medium">
-                                        Read full post <i class="fas fa-arrow-right ml-1"></i>
-                                    </span>
-                                </div>
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    showNoPostsMessage();
-                }
-            } catch (error) {
-                console.error('Error fetching user activity:', error);
-                // Try one more time without API key (public endpoint)
-                fetchPublicUserPosts();
-            }
-        }
-
-        // Try fetching without API key (public data)
-        async function fetchPublicUserPosts() {
-            const forumUrl = 'https://forums.jtechforums.org';
-            const username = 'TripleU';
-            const corsProxy = 'https://api.allorigins.win/raw?url=';
-
-            try {
-                // Try the public user activity endpoint
-                const publicUrl = `${forumUrl}/u/${username}/activity.json`;
-                const response = await fetch(corsProxy + encodeURIComponent(publicUrl));
-
-                if (!response.ok) throw new Error('Public endpoint failed');
-
-                const data = await response.json();
-                console.log('Public data:', data);
-
-                // Process the public data if available
-                if (data && data.length > 0) {
-                    const latestPost = data[0];
-                    const latestPostContainer = document.getElementById('latest-post');
-
-                    latestPostContainer.innerHTML = `
-                        <div class="bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
-                            <a href="${forumUrl}/t/${latestPost.topic_slug || 'topic'}/${latestPost.topic_id}"
-                               target="_blank" class="block">
-                                <div class="flex items-start justify-between mb-3">
-                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                        ${latestPost.topic_title || latestPost.title || 'Recent Forum Activity'}
-                                    </h3>
-                                    <span class="text-blue-400 ml-2 flex-shrink-0">
-                                        <i class="fas fa-external-link-alt text-xs"></i>
-                                    </span>
-                                </div>
-                                <div class="forum-content text-gray-400 text-sm text-left mb-4">
-                                    View my latest activity on the forum...
-                                </div>
-                                <div class="flex justify-between items-center text-xs text-gray-500">
-                                    <span>
-                                        <i class="fas fa-comments mr-1"></i>
-                                        Jtech Forums
-                                    </span>
-                                    <span class="text-blue-400 hover:text-blue-300 font-medium">
-                                        View on forum <i class="fas fa-arrow-right ml-1"></i>
-                                    </span>
-                                </div>
-                            </a>
-                        </div>
-                    `;
-                } else {
-                    showForumLinkFallback();
-                }
-            } catch (error) {
-                console.error('All methods failed:', error);
+            // If all attempts fail, show fallback
+            if (!success) {
+                console.log('All API attempts failed, showing fallback button');
                 showForumLinkFallback();
             }
         }
 
-        // Format Discourse HTML content
-        function formatDiscourseContent(html) {
-            // Create a temporary element to parse HTML
-            const tmp = document.createElement('div');
-            tmp.innerHTML = html;
-
-            // Remove images for cleaner text display
-            tmp.querySelectorAll('img').forEach(img => img.remove());
-
-            // Convert links to just text
-            tmp.querySelectorAll('a').forEach(link => {
-                const text = link.textContent;
-                link.replaceWith(text);
-            });
-
-            // Handle code blocks
-            tmp.querySelectorAll('code').forEach(code => {
-                code.style.background = 'rgba(50, 50, 50, 0.5)';
-                code.style.padding = '2px 4px';
-                code.style.borderRadius = '3px';
-                code.style.fontFamily = 'monospace';
-            });
-
-            // Get clean text
-            let text = tmp.innerHTML;
-
-            // Basic markdown-like formatting
-            text = text.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
-            text = text.replace(/<em>(.*?)<\/em>/g, '*$1*');
-            text = text.replace(/<p[^>]*>/g, '');
-            text = text.replace(/<\/p>/g, ' ');
-            text = text.replace(/<br\s*\/?>/g, ' ');
-
-            // Clean up extra spaces
-            text = text.replace(/\s+/g, ' ').trim();
-
-            // Limit length
-            if (text.length > 200) {
-                text = text.substring(0, 200) + '...';
-            }
-
-            return text;
-        }
-
-        function showNoPostsMessage() {
-            document.getElementById('latest-post').innerHTML = `
-                <div class="text-gray-500 text-sm py-4">
-                    <i class="fas fa-info-circle mr-2"></i>
-                    No recent forum posts
-                </div>
-            `;
-        }
-
+        // Show fallback link when API fails
         function showForumLinkFallback() {
             document.getElementById('latest-post').innerHTML = `
                 <a href="https://forums.jtechforums.org/u/TripleU/activity" target="_blank"
@@ -1277,6 +1311,164 @@
 
         // Fetch latest post on page load
         fetchLatestForumPost();
+
+        // Fetch Latest GitHub Activity
+        async function fetchLatestGitHubActivity() {
+            const githubToken = '***REDACTED***';
+            const username = 'TripleU613';
+            const githubContainer = document.getElementById('latest-github');
+
+            try {
+                const response = await fetch(`https://api.github.com/users/${username}/events/public`, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+
+                if (!response.ok) throw new Error(`GitHub API error: ${response.status}`);
+
+                const events = await response.json();
+
+                if (events && events.length > 0) {
+                    const latestEvent = events[0];
+
+                    // Parse event type and create description
+                    let eventDescription = '';
+                    let eventIcon = 'fas fa-code-branch';
+                    let repoName = latestEvent.repo.name;
+                    let repoUrl = `https://github.com/${repoName}`;
+
+                    switch(latestEvent.type) {
+                        case 'PushEvent':
+                            const commits = latestEvent.payload.commits || [];
+                            eventDescription = `Pushed ${commits.length} commit${commits.length !== 1 ? 's' : ''}`;
+                            if (commits.length > 0 && commits[0].message) {
+                                eventDescription += `: "${commits[0].message.substring(0, 100)}${commits[0].message.length > 100 ? '...' : ''}"`;
+                            }
+                            eventIcon = 'fas fa-upload';
+                            break;
+
+                        case 'CreateEvent':
+                            eventDescription = `Created ${latestEvent.payload.ref_type} ${latestEvent.payload.ref || 'repository'}`;
+                            eventIcon = 'fas fa-plus-circle';
+                            break;
+
+                        case 'DeleteEvent':
+                            eventDescription = `Deleted ${latestEvent.payload.ref_type} ${latestEvent.payload.ref}`;
+                            eventIcon = 'fas fa-trash';
+                            break;
+
+                        case 'IssuesEvent':
+                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} issue: "${latestEvent.payload.issue.title}"`;
+                            eventIcon = 'fas fa-exclamation-circle';
+                            break;
+
+                        case 'IssueCommentEvent':
+                            eventDescription = `Commented on issue: "${latestEvent.payload.issue.title}"`;
+                            eventIcon = 'fas fa-comment';
+                            break;
+
+                        case 'PullRequestEvent':
+                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} PR: "${latestEvent.payload.pull_request.title}"`;
+                            eventIcon = 'fas fa-code-pull-request';
+                            break;
+
+                        case 'PullRequestReviewEvent':
+                            eventDescription = `Reviewed PR #${latestEvent.payload.pull_request.number}`;
+                            eventIcon = 'fas fa-eye';
+                            break;
+
+                        case 'PullRequestReviewCommentEvent':
+                            eventDescription = `Commented on PR #${latestEvent.payload.pull_request.number}`;
+                            eventIcon = 'fas fa-comment-dots';
+                            break;
+
+                        case 'WatchEvent':
+                            eventDescription = 'Starred repository';
+                            eventIcon = 'fas fa-star';
+                            break;
+
+                        case 'ForkEvent':
+                            eventDescription = 'Forked repository';
+                            eventIcon = 'fas fa-code-fork';
+                            break;
+
+                        case 'ReleaseEvent':
+                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} release ${latestEvent.payload.release.tag_name}`;
+                            eventIcon = 'fas fa-tag';
+                            break;
+
+                        case 'PublicEvent':
+                            eventDescription = 'Made repository public';
+                            eventIcon = 'fas fa-lock-open';
+                            break;
+
+                        default:
+                            eventDescription = latestEvent.type.replace('Event', '');
+                            eventIcon = 'fas fa-code';
+                    }
+
+                    githubContainer.innerHTML = `
+                        <div class="github-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
+                            <a href="${repoUrl}" target="_blank" class="block">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                        <i class="${eventIcon} mr-2 text-gray-400"></i>
+                                        ${eventDescription}
+                                    </h3>
+                                    <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                        View on GitHub <i class="fas fa-arrow-right ml-1"></i>
+                                    </span>
+                                </div>
+                                <div class="text-gray-400 text-sm text-left mb-4">
+                                    <i class="fas fa-folder mr-1"></i> ${repoName}
+                                </div>
+                                <div class="flex justify-between items-center text-xs text-gray-500">
+                                    <span>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        ${formatDate(latestEvent.created_at)}
+                                    </span>
+                                    <span class="text-gray-500">
+                                        <i class="fab fa-github mr-1"></i>
+                                        GitHub Activity
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+
+                } else {
+                    showNoGitHubActivity();
+                }
+
+            } catch (error) {
+                console.error('Error fetching GitHub activity:', error);
+                showGitHubFallback();
+            }
+        }
+
+        function showNoGitHubActivity() {
+            document.getElementById('latest-github').innerHTML = `
+                <div class="text-gray-500 text-sm py-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    No recent GitHub activity
+                </div>
+            `;
+        }
+
+        function showGitHubFallback() {
+            document.getElementById('latest-github').innerHTML = `
+                <a href="https://github.com/TripleU613" target="_blank"
+                   class="inline-flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                    <i class="fab fa-github mr-2"></i>
+                    View My GitHub Profile
+                </a>
+            `;
+        }
+
+        // Fetch GitHub activity on page load
+        fetchLatestGitHubActivity();
 
         // Handle custom PayPal donation amount
         function donateCustomAmount() {

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify Forum Integration</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #111; color: #ddd; }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #333; border-radius: 5px; background: #1a1a1a; }
+        .success { border-color: #4caf50; }
+        .error { border-color: #f44336; }
+        pre { background: #222; padding: 10px; overflow: auto; border-radius: 3px; }
+        h1 { color: #4a9eff; }
+    </style>
+</head>
+<body>
+    <h1>Forum Integration Verification</h1>
+    <div id="results"></div>
+
+    <script>
+        const apiKey = '***REDACTED***';
+        const forumUrl = 'https://forums.jtechforums.org';
+        const username = 'TripleU';
+        const resultsDiv = document.getElementById('results');
+
+        async function testEndpoint(name, proxyUrl, endpoint, isWrapped = false) {
+            const testDiv = document.createElement('div');
+            testDiv.className = 'test';
+
+            try {
+                const fullUrl = proxyUrl + encodeURIComponent(endpoint);
+                console.log(`Testing ${name}: ${fullUrl}`);
+
+                const response = await fetch(fullUrl);
+
+                let data;
+                if (isWrapped) {
+                    const wrapper = await response.json();
+                    if (wrapper.status?.http_code !== 200) {
+                        throw new Error(`HTTP ${wrapper.status.http_code}`);
+                    }
+                    data = JSON.parse(wrapper.contents);
+                } else {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    data = await response.json();
+                }
+
+                // Check if we got TripleU's data
+                let found = false;
+                let postInfo = null;
+
+                if (data.user_actions?.length > 0) {
+                    postInfo = data.user_actions[0];
+                    found = true;
+                } else if (data.posts) {
+                    const userPosts = data.posts.filter(p =>
+                        p.username?.toLowerCase() === username.toLowerCase()
+                    );
+                    if (userPosts.length > 0) {
+                        postInfo = userPosts[0];
+                        found = true;
+                    }
+                } else if (Array.isArray(data) && data.length > 0) {
+                    postInfo = data[0];
+                    found = true;
+                }
+
+                testDiv.className = 'test success';
+                testDiv.innerHTML = `
+                    <h3>✅ ${name}</h3>
+                    <p><strong>Status:</strong> Success</p>
+                    ${found && postInfo ? `
+                        <p><strong>Latest Post:</strong> ${postInfo.title || postInfo.topic_title || 'N/A'}</p>
+                        <p><strong>Likes:</strong> ${postInfo.like_count || postInfo.likes || postInfo.likes_received || 0} |
+                           <strong>Replies:</strong> ${postInfo.reply_count || 0}</p>
+                        <details>
+                            <summary>View Response</summary>
+                            <pre>${JSON.stringify(data, null, 2).substring(0, 1000)}...</pre>
+                        </details>
+                    ` : '<p>No posts found for TripleU</p>'}
+                `;
+            } catch (error) {
+                testDiv.className = 'test error';
+                testDiv.innerHTML = `
+                    <h3>❌ ${name}</h3>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `;
+            }
+
+            resultsDiv.appendChild(testDiv);
+        }
+
+        async function runTests() {
+            resultsDiv.innerHTML = '<p>Running tests...</p>';
+
+            // Test 1: AllOrigins GET with user_actions
+            await testEndpoint(
+                'AllOrigins GET + User Actions',
+                'https://api.allorigins.win/get?url=',
+                `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`,
+                true
+            );
+
+            // Test 2: CorsProxy.io with user_actions
+            await testEndpoint(
+                'CorsProxy.io + User Actions',
+                'https://corsproxy.io/?',
+                `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`
+            );
+
+            // Test 3: Search endpoint
+            await testEndpoint(
+                'AllOrigins + Search',
+                'https://api.allorigins.win/get?url=',
+                `${forumUrl}/search.json?q=@${username}%20order:latest`,
+                true
+            );
+
+            // Test 4: Public activity
+            await testEndpoint(
+                'Public Activity Endpoint',
+                'https://api.allorigins.win/get?url=',
+                `${forumUrl}/u/${username}/activity.json`,
+                true
+            );
+
+            // Add summary
+            const summary = document.createElement('div');
+            summary.className = 'test';
+            summary.innerHTML = `
+                <h2>Summary</h2>
+                <p>Tests completed. Check the console for detailed logs.</p>
+                <p>If at least one test succeeded, the forum integration should work!</p>
+                <p><a href="index.html" style="color: #4a9eff;">Go to Main Site</a></p>
+            `;
+            resultsDiv.appendChild(summary);
+        }
+
+        // Run tests on load
+        runTests();
+    </script>
+</body>
+</html>

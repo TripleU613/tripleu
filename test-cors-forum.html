@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test CORS Solutions</title>
+</head>
+<body>
+    <h1>Testing CORS Proxy Solutions</h1>
+    <div id="results"></div>
+
+    <script>
+        const apiKey = '***REDACTED***';
+        const forumUrl = 'https://forums.jtechforums.org';
+        const username = 'TripleU';
+        const resultsDiv = document.getElementById('results');
+
+        // Test different CORS proxies and endpoints
+        const tests = [
+            {
+                name: 'AllOrigins with user_actions',
+                proxy: 'https://api.allorigins.win/raw?url=',
+                endpoint: `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`
+            },
+            {
+                name: 'AllOrigins GET method',
+                proxy: 'https://api.allorigins.win/get?url=',
+                endpoint: `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`,
+                isWrapped: true
+            },
+            {
+                name: 'CorsProxy.io',
+                proxy: 'https://corsproxy.io/?',
+                endpoint: `${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`
+            },
+            {
+                name: 'Public user endpoint',
+                proxy: 'https://api.allorigins.win/raw?url=',
+                endpoint: `${forumUrl}/u/${username}/activity.json`
+            },
+            {
+                name: 'Direct topics search',
+                proxy: 'https://api.allorigins.win/raw?url=',
+                endpoint: `${forumUrl}/search.json?q=@${username}`
+            }
+        ];
+
+        async function runTests() {
+            resultsDiv.innerHTML = '<h2>Running tests...</h2>';
+
+            for (const test of tests) {
+                const testResult = document.createElement('div');
+                testResult.style.cssText = 'margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px;';
+
+                try {
+                    console.log(`Testing: ${test.name}`);
+                    console.log(`URL: ${test.proxy}${encodeURIComponent(test.endpoint)}`);
+
+                    const response = await fetch(test.proxy + encodeURIComponent(test.endpoint));
+
+                    let data;
+                    if (test.isWrapped) {
+                        // AllOrigins GET wraps response
+                        const wrapper = await response.json();
+                        data = JSON.parse(wrapper.contents);
+                    } else {
+                        data = await response.json();
+                    }
+
+                    console.log(`${test.name} response:`, data);
+
+                    testResult.innerHTML = `
+                        <h3 style="color: green;">✓ ${test.name} - SUCCESS</h3>
+                        <p>Status: ${response.status}</p>
+                        <pre style="background: #f0f0f0; padding: 10px; overflow: auto; max-height: 200px;">
+${JSON.stringify(data, null, 2)}
+                        </pre>
+                    `;
+                } catch (error) {
+                    console.error(`${test.name} error:`, error);
+                    testResult.innerHTML = `
+                        <h3 style="color: red;">✗ ${test.name} - FAILED</h3>
+                        <p>Error: ${error.message}</p>
+                    `;
+                }
+
+                resultsDiv.appendChild(testResult);
+            }
+        }
+
+        // Run tests on page load
+        runTests();
+    </script>
+</body>
+</html>
