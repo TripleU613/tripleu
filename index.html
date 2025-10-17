@@ -231,6 +231,13 @@
             overflow: hidden;
         }
 
+        .line-clamp-4 {
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -669,17 +676,6 @@
             </div>
         </div>
 
-<!-- Latest Forum Activity Section -->
-<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
-    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">Latest Forum Activity</h2>
-    <div id="latest-post" class="text-center">
-        <div class="animate-pulse">
-            <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
-            <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto"></div>
-        </div>
-    </div>
-</div>
-
 <!-- Connect With Me Section -->
 <div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
     <h2 class="text-lg font-semibold text-center text-gray-400 mb-4 sm:mb-6">Connect With Me</h2>
@@ -928,6 +924,18 @@
         </div>
     </div>
 </div>
+
+<!-- Latest Forum Activity Section -->
+<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest Forum Post</h2>
+    <div id="latest-post" class="text-center">
+        <div class="animate-pulse">
+            <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-2/3 mx-auto"></div>
+        </div>
+    </div>
+</div>
 </div>
 
         <footer class="py-6 border-t border-gray-900 mt-8">
@@ -981,11 +989,11 @@
         async function fetchLatestForumPost() {
             const apiKey = '***REDACTED***';
             const forumUrl = 'https://forums.jtechforums.org';
-            const username = 'TripleU'; // Your forum username
+            const username = 'TripleU';
 
             try {
-                // Fetch user's latest posts
-                const response = await fetch(`${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`);
+                // First try to get user's posts directly
+                const response = await fetch(`${forumUrl}/posts.json?api_key=${apiKey}&api_username=${username}`);
 
                 if (!response.ok) {
                     throw new Error('Failed to fetch posts');
@@ -994,51 +1002,177 @@
                 const data = await response.json();
                 const latestPostContainer = document.getElementById('latest-post');
 
+                // Filter to only show TripleU's posts
+                const myPosts = data.latest_posts ? data.latest_posts.filter(post =>
+                    post.username && post.username.toLowerCase() === username.toLowerCase()
+                ) : [];
+
+                if (myPosts.length > 0) {
+                    const latestPost = myPosts[0];
+
+                    // Parse and format the post content
+                    const formattedContent = formatDiscourseContent(latestPost.cooked || '');
+
+                    // Create post display with better formatting
+                    latestPostContainer.innerHTML = `
+                        <div class="bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
+                            <a href="${forumUrl}/t/${latestPost.topic_slug}/${latestPost.topic_id}/${latestPost.post_number}"
+                               target="_blank" class="block">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                        ${latestPost.topic_title || 'Forum Post'}
+                                    </h3>
+                                    <span class="text-blue-400 ml-2 flex-shrink-0">
+                                        <i class="fas fa-external-link-alt text-xs"></i>
+                                    </span>
+                                </div>
+                                <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
+                                    ${formattedContent}
+                                </div>
+                                <div class="flex flex-wrap justify-between items-center text-xs text-gray-500 gap-2">
+                                    <span>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        ${formatDate(latestPost.created_at)}
+                                    </span>
+                                    <div class="flex items-center gap-4">
+                                        ${latestPost.reply_count > 0 ? `
+                                            <span>
+                                                <i class="fas fa-comments mr-1"></i>
+                                                ${latestPost.reply_count} ${latestPost.reply_count === 1 ? 'reply' : 'replies'}
+                                            </span>
+                                        ` : ''}
+                                        <span class="text-blue-400 hover:text-blue-300 font-medium">
+                                            Read full post <i class="fas fa-arrow-right ml-1"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                } else {
+                    // Try alternative endpoint if no posts found
+                    fetchUserActivityPosts();
+                }
+            } catch (error) {
+                console.error('Error fetching forum post:', error);
+                fetchUserActivityPosts(); // Try fallback method
+            }
+        }
+
+        // Fallback method to fetch user activity
+        async function fetchUserActivityPosts() {
+            const apiKey = '***REDACTED***';
+            const forumUrl = 'https://forums.jtechforums.org';
+            const username = 'TripleU';
+
+            try {
+                const response = await fetch(`${forumUrl}/user_actions.json?username=${username}&filter=5&api_key=${apiKey}`);
+
+                if (!response.ok) throw new Error('Failed to fetch user activity');
+
+                const data = await response.json();
+                const latestPostContainer = document.getElementById('latest-post');
+
                 if (data.user_actions && data.user_actions.length > 0) {
                     const latestAction = data.user_actions[0];
 
-                    // Create post display
                     latestPostContainer.innerHTML = `
-                        <div class="bg-black/50 rounded-xl p-4 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
-                            <a href="${forumUrl}/t/${latestAction.topic_id}/${latestAction.post_number}" target="_blank" class="block">
-                                <h3 class="font-semibold text-white text-left mb-2 line-clamp-2">
-                                    ${latestAction.topic_title || 'Forum Post'}
-                                </h3>
-                                <div class="text-gray-400 text-sm text-left mb-3 line-clamp-3">
-                                    ${stripHtml(latestAction.excerpt || latestAction.cooked || 'View post on forum...')}
+                        <div class="bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-600/50 transition-all duration-300">
+                            <a href="${forumUrl}/t/${latestAction.slug}/${latestAction.topic_id}/${latestAction.post_number || 1}"
+                               target="_blank" class="block">
+                                <div class="flex items-start justify-between mb-3">
+                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                        ${latestAction.title || 'Forum Post'}
+                                    </h3>
+                                    <span class="text-blue-400 ml-2 flex-shrink-0">
+                                        <i class="fas fa-external-link-alt text-xs"></i>
+                                    </span>
+                                </div>
+                                <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
+                                    ${latestAction.excerpt || 'View the full post on the forum...'}
                                 </div>
                                 <div class="flex justify-between items-center text-xs text-gray-500">
                                     <span>
                                         <i class="fas fa-clock mr-1"></i>
                                         ${formatDate(latestAction.created_at)}
                                     </span>
-                                    <span class="text-blue-400 hover:text-blue-300">
-                                        Read more <i class="fas fa-arrow-right ml-1"></i>
+                                    <span class="text-blue-400 hover:text-blue-300 font-medium">
+                                        Read full post <i class="fas fa-arrow-right ml-1"></i>
                                     </span>
                                 </div>
                             </a>
                         </div>
                     `;
                 } else {
-                    // No posts found
-                    latestPostContainer.innerHTML = `
-                        <div class="text-gray-500 text-sm">
-                            <i class="fas fa-info-circle mr-2"></i>
-                            No recent forum activity
-                        </div>
-                    `;
+                    showNoPostsMessage();
                 }
             } catch (error) {
-                console.error('Error fetching forum post:', error);
-                // Show fallback link
-                document.getElementById('latest-post').innerHTML = `
-                    <a href="${forumUrl}/u/${username}/activity" target="_blank"
-                       class="inline-flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
-                        <i class="fas fa-comments mr-2"></i>
-                        View Forum Activity
-                    </a>
-                `;
+                console.error('Error fetching user activity:', error);
+                showForumLinkFallback();
             }
+        }
+
+        // Format Discourse HTML content
+        function formatDiscourseContent(html) {
+            // Create a temporary element to parse HTML
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html;
+
+            // Remove images for cleaner text display
+            tmp.querySelectorAll('img').forEach(img => img.remove());
+
+            // Convert links to just text
+            tmp.querySelectorAll('a').forEach(link => {
+                const text = link.textContent;
+                link.replaceWith(text);
+            });
+
+            // Handle code blocks
+            tmp.querySelectorAll('code').forEach(code => {
+                code.style.background = 'rgba(50, 50, 50, 0.5)';
+                code.style.padding = '2px 4px';
+                code.style.borderRadius = '3px';
+                code.style.fontFamily = 'monospace';
+            });
+
+            // Get clean text
+            let text = tmp.innerHTML;
+
+            // Basic markdown-like formatting
+            text = text.replace(/<strong>(.*?)<\/strong>/g, '**$1**');
+            text = text.replace(/<em>(.*?)<\/em>/g, '*$1*');
+            text = text.replace(/<p[^>]*>/g, '');
+            text = text.replace(/<\/p>/g, ' ');
+            text = text.replace(/<br\s*\/?>/g, ' ');
+
+            // Clean up extra spaces
+            text = text.replace(/\s+/g, ' ').trim();
+
+            // Limit length
+            if (text.length > 200) {
+                text = text.substring(0, 200) + '...';
+            }
+
+            return text;
+        }
+
+        function showNoPostsMessage() {
+            document.getElementById('latest-post').innerHTML = `
+                <div class="text-gray-500 text-sm py-4">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    No recent forum posts
+                </div>
+            `;
+        }
+
+        function showForumLinkFallback() {
+            document.getElementById('latest-post').innerHTML = `
+                <a href="https://forums.jtechforums.org/u/TripleU/activity" target="_blank"
+                   class="inline-flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                    <i class="fas fa-comments mr-2"></i>
+                    View My Forum Activity
+                </a>
+            `;
         }
 
         // Helper function to strip HTML tags
