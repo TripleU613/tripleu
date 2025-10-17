@@ -1,7 +1,7 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
-// This function will be called by Vercel Cron
+// This function will be called by Vercel Cron once daily at 10:00 AM UTC
 export const config = {
   maxDuration: 30, // Maximum function duration: 30 seconds
 };

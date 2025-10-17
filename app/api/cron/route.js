@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
 
-// Vercel Cron configuration
+// Vercel Cron - runs once daily at 10:00 AM UTC (Hobby plan)
 export const maxDuration = 30; // Maximum function duration: 30 seconds
 
 export async function GET(request) {
