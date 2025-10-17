@@ -22,9 +22,4 @@
 
   <!-- Triple U Design -->
   <text x="50" y="70" font-family="Arial, sans-serif" font-size="48" font-weight="bold" text-anchor="middle" fill="url(#blueGradient)" filter="url(#glow)">TU</text>
-
-  <!-- Small accent dot -->
-  <circle cx="80" cy="20" r="3" fill="#00ffff" opacity="0.8">
-    <animate attributeName="opacity" values="0.8;0.3;0.8" dur="2s" repeatCount="indefinite"/>
-  </circle>
 </svg>
