@@ -1293,7 +1293,7 @@
                                     <a href="${forumUrl}/t/${latestPost.slug}/${latestPost.topic_id}/${latestPost.post_number}"
                                        target="_blank" class="block">
                                         <div class="flex items-center justify-between mb-3">
-                                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
                                                 ${limitText(latestPost.title, 100)}
                                             </h3>
                                             <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
@@ -1496,7 +1496,7 @@
                         <div class="github-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-blue-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-blue-500/20">
                             <a href="${repoUrl}" target="_blank" class="block">
                                 <div class="flex items-center justify-between mb-3">
-                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
                                         <i class="${eventIcon} mr-2 text-gray-400"></i>
                                         ${eventDescription}
                                     </h3>
@@ -1572,26 +1572,26 @@
                         const post = result.data.posts[0];
                         const stats = result.data.stats;
 
-                        // Format date
+                        // Format date with timestamp
                         let formattedDate = 'Recently';
                         if (post.date) {
                             const date = new Date(post.date);
-                            const now = new Date();
-                            const diff = now - date;
-                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-                            if (days === 0) formattedDate = 'Today';
-                            else if (days === 1) formattedDate = 'Yesterday';
-                            else if (days < 7) formattedDate = `${days} days ago`;
-                            else if (days < 30) formattedDate = `${Math.floor(days / 7)} weeks ago`;
-                            else formattedDate = date.toLocaleDateString();
+                            const options = { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric',
+                                hour: 'numeric',
+                                minute: '2-digit',
+                                hour12: true
+                            };
+                            formattedDate = date.toLocaleString('en-US', options);
                         }
 
                         mitmachimContainer.innerHTML = `
                             <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
                                 <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
                                     <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
                                             ${limitText(post.title, 100)}
                                         </h3>
                                         <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
@@ -1635,7 +1635,7 @@
                 <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
                     <a href="https://mitmachim.top/t/kvylock-mdm/12345" target="_blank" class="block">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
                                 kvylock - New Network-Based MDM System
                             </h3>
                             <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
