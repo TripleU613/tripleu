@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripleU - Software Engineer</title>
+    <meta name="description" content="Software Engineer & Kosher Software Enthusiast">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Lucide Icons for sleeker icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Payment Scripts -->
+    <script src='https://storage.ko-fi.com/cdn/scripts/overlay-widget.js'></script>
+    <script async src="https://js.stripe.com/v3/buy-button.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=BAA3cm5zw6EzO1l6EnEN1iG_xW58Z9COKv8vFOaCLes16kvplu0i8V1bRY5yOsmAC5JqoxtGkzV44-QL-s&components=hosted-buttons&disable-funding=venmo&currency=USD" crossorigin="anonymous" async></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+
+        /* RGB Animated Name - Infinite Smooth */
+        .rgb-name {
+            display: block;
+            background: linear-gradient(135deg,
+                #0066ff 0%, #0099ff 10%, #00bbff 20%, #00ddff 30%,
+                #00ffff 40%, #00ddff 50%, #00bbff 60%, #0099ff 70%,
+                #0066ff 80%, #0044cc 90%, #0066ff 100%);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rgb-wave 8s ease-in-out infinite, subtle-float 3s ease-in-out infinite;
+            transition: transform 0.2s ease;
+            width: fit-content;
+            margin: 0 auto;
+            filter: brightness(1.1);
+        }
+
+        .rgb-name:hover {
+            transform: scale(1.08);
+            animation-duration: 3s, 2s;
+            filter: brightness(1.2);
+        }
+
+        .rgb-name:active {
+            transform: scale(0.96);
+        }
+
+        @keyframes subtle-float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            25% {
+                transform: translateY(-2px) scale(1.01);
+            }
+            50% {
+                transform: translateY(-4px) scale(1.02);
+            }
+            75% {
+                transform: translateY(-2px) scale(1.01);
+            }
+        }
+
+        @keyframes rgb-wave {
+            0% {
+                background-position: 0% 0%;
+            }
+            25% {
+                background-position: 100% 100%;
+            }
+            50% {
+                background-position: 100% 0%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+
+
+
+
+        /* Profile Media Container Styles */
+        .profile-media-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 50%;
+            -webkit-mask-image: radial-gradient(circle, white 100%, black 100%);
+            mask-image: radial-gradient(circle, white 100%, black 100%);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: 128px;
+            height: 128px;
+            display: inline-block;
+            margin: 0 auto;
+        }
+
+        .profile-media-container:hover {
+            transform: scale(1.05);
+        }
+
+        #profile-video, #profile-image {
+            width: 128px;
+            height: 128px;
+            object-fit: cover;
+            border-radius: 50%;
+            -webkit-border-radius: 50%;
+            -moz-border-radius: 50%;
+            display: block;
+        }
+
+        #profile-video {
+            clip-path: circle(50% at 50% 50%);
+            -webkit-clip-path: circle(50% at 50% 50%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            will-change: opacity;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            transform: translateZ(0);
+        }
+
+        #profile-image {
+            transition: opacity 0.3s ease;
+            position: relative;
+        }
+
+        .profile-media-container.playing #profile-image {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .profile-media-container.playing #profile-video {
+            display: block !important;
+        }
+
+
+
+        /* Section containers */
+        .section-container {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(30, 30, 30, 0.8);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .section-container:hover {
+            background: rgba(0, 0, 0, 0.4);
+            border-color: rgba(50, 50, 50, 0.8);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a2a2a;
+        }
+
+        /* Hover card effect */
+        .hover-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hover-card:hover {
+            transform: translateY(-4px);
+            background: linear-gradient(135deg, rgba(0, 102, 204, 0.1) 0%, rgba(0, 168, 255, 0.1) 100%);
+        }
+
+
+        /* Smooth hover transitions */
+        a, button {
+            transition: all 0.2s ease;
+        }
+
+        /* Link thumbnails */
+        .link-thumbnail {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        /* Payment section animations */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slideDown {
+            animation: slideDown 0.3s ease-out;
+        }
+
+        .payment-section {
+            transition: all 0.3s ease;
+        }
+
+        /* Electric Pulse Comet Effect */
+        .electric-comet-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .electric-comet {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            pointer-events: none;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Main comet body - subtle deep blue */
+        .electric-comet::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center,
+                rgba(200, 220, 255, 0.6) 0%,
+                rgba(100, 150, 255, 0.4) 15%,
+                rgba(30, 90, 255, 0.3) 30%,
+                rgba(0, 50, 200, 0.2) 50%,
+                rgba(0, 30, 150, 0.1) 70%,
+                transparent 100%);
+            border-radius: 50%;
+            filter: blur(0.5px);
+            box-shadow: 0 0 8px rgba(30, 90, 255, 0.3),
+                        0 0 15px rgba(30, 90, 255, 0.15);
+        }
+
+        /* Trail segment - will be created dynamically */
+        .comet-trail-segment {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            pointer-events: none;
+            background: radial-gradient(circle at center,
+                rgba(30, 90, 255, 0.35) 0%,
+                rgba(0, 50, 200, 0.2) 40%,
+                rgba(0, 30, 150, 0.08) 70%,
+                transparent 100%);
+            border-radius: 50%;
+            z-index: 998;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .comet-trail-segment.fading {
+            opacity: 0 !important;
+        }
+
+        .electric-comet.traveling {
+            opacity: 0.6; /* More subtle - reduced from 0.9 */
+        }
+
+        .electric-comet.fading {
+            transition: opacity 0.8s ease-out;
+            opacity: 0 !important;
+        }
+
+        .electric-comet.appearing {
+            animation: fadeIn 0.8s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 0.6; } /* Match traveling opacity */
+        }
+
+        /* Button-specific active states with themed glows */
+        .payment-btn[onclick*="kofi"].active {
+            background: #111 !important;
+            border-color: rgb(250 204 21 / 30%) !important;
+            box-shadow: 0 0 15px rgba(250, 204, 21, 0.2) !important;
+        }
+
+        .payment-btn[onclick*="paypal"].active {
+            background: #111 !important;
+            border-color: rgb(96 165 250 / 30%) !important;
+            box-shadow: 0 0 15px rgba(96, 165, 250, 0.2) !important;
+        }
+
+        .payment-btn[onclick*="stripe"].active {
+            background: #111 !important;
+            border-color: rgb(192 132 252 / 30%) !important;
+            box-shadow: 0 0 15px rgba(192, 132, 252, 0.2) !important;
+        }
+
+        .payment-btn[onclick*="github"].active {
+            background: #111 !important;
+            border-color: rgb(156 163 175 / 30%) !important;
+            box-shadow: 0 0 15px rgba(156, 163, 175, 0.2) !important;
+        }
+
+        /* Contact and Payment Card Animations */
+        .contact-card, .payment-card {
+            animation: subtle-float 6s ease-in-out infinite;
+        }
+
+        .contact-card:nth-child(2) {
+            animation-delay: 2s;
+        }
+
+        .contact-card:nth-child(3) {
+            animation-delay: 4s;
+        }
+
+        .payment-card:nth-child(1) {
+            animation-delay: 1s;
+        }
+
+        .payment-card:nth-child(2) {
+            animation-delay: 2.5s;
+        }
+
+        .payment-card:nth-child(3) {
+            animation-delay: 4s;
+        }
+
+        .payment-card:nth-child(4) {
+            animation-delay: 5.5s;
+        }
+
+        @keyframes subtle-float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            33% {
+                transform: translateY(-2px) rotate(0.1deg);
+            }
+            66% {
+                transform: translateY(1px) rotate(-0.1deg);
+            }
+        }
+
+        .contact-icon-wrapper, .payment-icon-wrapper {
+            animation: icon-pulse 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+
+        @keyframes icon-pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .contact-card:hover .contact-icon-wrapper,
+        .payment-card:hover .payment-icon-wrapper {
+            animation: icon-bounce 0.6s ease;
+        }
+
+        @keyframes icon-bounce {
+            0%, 100% {
+                transform: scale(1) translateY(0);
+            }
+            30% {
+                transform: scale(1.1) translateY(-4px);
+            }
+            60% {
+                transform: scale(0.95) translateY(2px);
+            }
+        }
+
+        /* Ensure payment icons maintain their colors */
+        .payment-card .fa-mug-hot { color: rgb(250 204 21) !important; }
+        .payment-card:hover .fa-mug-hot { color: rgb(253 224 71) !important; }
+
+        .payment-card .fa-paypal { color: rgb(96 165 250) !important; }
+        .payment-card:hover .fa-paypal { color: rgb(147 197 253) !important; }
+
+        .payment-card .fa-stripe { color: rgb(192 132 252) !important; }
+        .payment-card:hover .fa-stripe { color: rgb(216 180 254) !important; }
+
+        .payment-card .fa-github { color: rgb(156 163 175) !important; }
+        .payment-card:hover .fa-github { color: rgb(209 213 219) !important; }
+        /* Stacked Links Styles */
+        .stacked-link {
+            position: absolute;
+            width: 100%;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        @media (min-width: 640px) {
+            .stacked-link:hover {
+                transform: translateY(var(--current-y)) scale(1.02);
+            }
+        }
+
+        .stacked-link[data-index="0"] { --current-y: 0px; }
+        .stacked-link[data-index="1"] { --current-y: 25px; }
+        .stacked-link[data-index="2"] { --current-y: 50px; }
+        .stacked-link[data-index="3"] { --current-y: 75px; }
+
+        /* Expanded state */
+        .stacked-links-container.expanded .stacked-link[data-index="0"] {
+            transform: translateY(0px) !important;
+        }
+
+        .stacked-links-container.expanded .stacked-link[data-index="1"] {
+            transform: translateY(85px) !important;
+        }
+
+        .stacked-links-container.expanded .stacked-link[data-index="2"] {
+            transform: translateY(170px) !important;
+        }
+
+        .stacked-links-container.expanded .stacked-link[data-index="3"] {
+            transform: translateY(255px) !important;
+        }
+
+        @media (min-width: 640px) {
+            .stacked-links-container.expanded .stacked-link[data-index="1"] {
+                transform: translateY(95px) !important;
+            }
+
+            .stacked-links-container.expanded .stacked-link[data-index="2"] {
+                transform: translateY(190px) !important;
+            }
+
+            .stacked-links-container.expanded .stacked-link[data-index="3"] {
+                transform: translateY(285px) !important;
+            }
+        }
+
+        .stacked-links-container.expanded .stacked-link:hover {
+            transform: translateY(var(--expanded-y)) scale(1.02) !important;
+        }
+
+        .stacked-links-container.expanded .stacked-link[data-index="0"]:hover { --expanded-y: 0px; }
+        .stacked-links-container.expanded .stacked-link[data-index="1"]:hover { --expanded-y: 95px; }
+        .stacked-links-container.expanded .stacked-link[data-index="2"]:hover { --expanded-y: 190px; }
+        .stacked-links-container.expanded .stacked-link[data-index="3"]:hover { --expanded-y: 285px; }
+
+        .stacked-links-container {
+            transition: height 0.4s ease;
+            cursor: pointer;
+        }
+
+        .stacked-links-container.expanded {
+            height: 340px !important;
+        }
+
+        @media (min-width: 640px) {
+            .stacked-links-container.expanded {
+                height: 365px !important;
+            }
+        }
+
+        /* Subtle breathing/shaking animation for stacked state */
+        @keyframes breathe-shake {
+            0%, 100% {
+                transform: translateY(var(--current-y)) rotate(0deg);
+            }
+            25% {
+                transform: translateY(var(--current-y)) rotate(0.2deg);
+            }
+            50% {
+                transform: translateY(calc(var(--current-y) - 2px)) rotate(-0.2deg);
+            }
+            75% {
+                transform: translateY(var(--current-y)) rotate(0.1deg);
+            }
+        }
+
+        .stacked-links-container:not(.expanded) .stacked-link {
+            animation: breathe-shake 4s ease-in-out infinite;
+        }
+
+        .stacked-links-container:not(.expanded) .stacked-link[data-index="1"] {
+            animation-delay: 0.5s;
+        }
+
+        .stacked-links-container:not(.expanded) .stacked-link[data-index="2"] {
+            animation-delay: 1s;
+        }
+
+        .stacked-links-container:not(.expanded) .stacked-link[data-index="3"] {
+            animation-delay: 1.5s;
+        }
+
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen">
+    <!-- Background gradient -->
+    <div class="fixed inset-0 bg-gradient-to-br from-black via-black to-blue-900/10 -z-10"></div>
+
+    <!-- Banner Section -->
+    <div class="w-full h-48 md:h-64 relative overflow-hidden bg-black">
+        <img src="profile banner.jpg" alt="Banner" class="w-full h-full object-cover" style="
+            -webkit-mask-image: linear-gradient(to bottom,
+                black 0%,
+                black 60%,
+                rgba(0,0,0,0.9) 70%,
+                rgba(0,0,0,0.6) 80%,
+                rgba(0,0,0,0.3) 90%,
+                transparent 100%);
+            mask-image: linear-gradient(to bottom,
+                black 0%,
+                black 60%,
+                rgba(0,0,0,0.9) 70%,
+                rgba(0,0,0,0.6) 80%,
+                rgba(0,0,0,0.3) 90%,
+                transparent 100%);">
+    </div>
+
+    <!-- Main Container -->
+    <div class="max-w-2xl mx-auto px-4 relative -mt-20">
+
+        <!-- Profile Section -->
+        <div class="text-center mb-8 sm:mb-12 animate-fade-in-up profile-section">
+            <!-- Profile Image Container -->
+            <div class="relative inline-block mb-4 sm:mb-6 profile-media-container" id="profile-container">
+                <img src="profile pic.png" alt="TripleU"
+                     id="profile-image"
+                     class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-black object-cover cursor-pointer transition-opacity duration-300">
+                <video id="profile-video"
+                       class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-4 border-black object-cover absolute top-0 left-0 hidden"
+                       muted
+                       playsinline
+                       preload="none">
+                    <source src="profile-video.mp4" type="video/mp4">
+                </video>
+            </div>
+
+            <!-- Name and Bio -->
+            <h1 class="text-3xl sm:text-4xl font-bold mb-3 rgb-name cursor-pointer select-none" id="triple-u-name">TripleU</h1>
+            <p class="text-gray-400 text-base sm:text-lg mb-2 px-4">Software Engineer & Kosher Software Enthusiast</p>
+            <p class="text-gray-500 text-xs sm:text-sm px-4">CEO of Jtech Forums & TripleUTech</p>
+        </div>
+
+        <!-- Quick Contact Section -->
+        <div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+            <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">Quick Contact</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            <a href="https://wa.me/18483336818"
+               class="contact-card bg-black hover:bg-gray-950 p-5 rounded-2xl text-center group border border-gray-800 hover:border-green-600/50 transition-all duration-300 relative overflow-hidden">
+                <div class="contact-icon-wrapper">
+                    <svg class="w-7 h-7 mx-auto text-green-400 group-hover:text-green-300 transition-colors" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91C2.13 13.66 2.59 15.36 3.45 16.86L2.05 22L7.3 20.62C8.75 21.41 10.38 21.83 12.04 21.83C17.5 21.83 21.95 17.38 21.95 11.92C21.95 9.27 20.92 6.78 19.05 4.91C17.18 3.03 14.69 2 12.04 2M12.05 3.67C14.25 3.67 16.31 4.53 17.87 6.09C19.42 7.65 20.28 9.72 20.28 11.92C20.28 16.46 16.58 20.15 12.04 20.15C10.56 20.15 9.11 19.76 7.85 19L7.55 18.83L4.43 19.65L5.26 16.61L5.06 16.29C4.24 15 3.8 13.47 3.8 11.91C3.81 7.37 7.5 3.67 12.05 3.67M8.53 7.33C8.37 7.33 8.1 7.39 7.87 7.64C7.65 7.89 7 8.5 7 9.71C7 10.93 7.89 12.1 8 12.27C8.14 12.44 9.76 14.94 12.25 16C12.84 16.27 13.3 16.42 13.66 16.53C14.25 16.72 14.79 16.69 15.22 16.63C15.7 16.56 16.68 16.03 16.89 15.45C17.1 14.87 17.1 14.38 17.04 14.27C16.97 14.17 16.81 14.11 16.56 14C16.31 13.86 15.09 13.26 14.87 13.18C14.64 13.1 14.5 13.06 14.31 13.3C14.15 13.55 13.67 14.11 13.53 14.27C13.38 14.44 13.24 14.46 13 14.34C12.74 14.21 11.94 13.95 11 13.11C10.26 12.45 9.77 11.64 9.62 11.39C9.5 11.15 9.61 11 9.73 10.89C9.84 10.78 10 10.6 10.1 10.45C10.23 10.31 10.27 10.2 10.35 10.04C10.43 9.87 10.39 9.73 10.33 9.61C10.27 9.5 9.77 8.26 9.56 7.77C9.36 7.29 9.16 7.35 9 7.34C8.86 7.34 8.7 7.33 8.53 7.33Z"/>
+                    </svg>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 font-medium">WhatsApp</p>
+                <div class="absolute inset-0 bg-gradient-to-t from-green-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+            <a href="mailto:tripleuworld@gmail.com"
+               class="contact-card bg-black hover:bg-gray-950 p-5 rounded-2xl text-center group border border-gray-800 hover:border-blue-600/50 transition-all duration-300 relative overflow-hidden">
+                <div class="contact-icon-wrapper">
+                    <i data-lucide="mail" class="w-7 h-7 mx-auto text-blue-400 group-hover:text-blue-300"></i>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 font-medium">Email</p>
+                <div class="absolute inset-0 bg-gradient-to-t from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+            <a href="sms:7325038790"
+               class="contact-card bg-black hover:bg-gray-950 p-5 rounded-2xl text-center group border border-gray-800 hover:border-cyan-600/50 transition-all duration-300 relative overflow-hidden">
+                <div class="contact-icon-wrapper">
+                    <i data-lucide="message-circle" class="w-7 h-7 mx-auto text-cyan-400 group-hover:text-cyan-300"></i>
+                </div>
+                <p class="text-xs text-gray-500 mt-3 font-medium">Text</p>
+                <div class="absolute inset-0 bg-gradient-to-t from-cyan-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </a>
+            </div>
+        </div>
+
+<!-- Connect With Me Section -->
+<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4 sm:mb-6">Connect With Me</h2>
+
+    <div class="stacked-links-container relative" style="height: 160px;">
+
+        <!-- Jtech Forums (Top) -->
+        <div class="stacked-link" data-index="0" style="z-index: 4; transform: translateY(0px);">
+            <a href="https://forums.jtechforums.org" target="_blank"
+               class="block bg-black hover:bg-gray-950 p-3 sm:p-4 rounded-xl group border border-gray-800 hover:border-blue-600 transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <img src="forums image.png" alt="Jtech Forums" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gray-800">
+                        <div>
+                            <p class="font-bold text-base sm:text-lg text-white">Jtech Forums</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Community discussions and support</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-600 group-hover:text-blue-400 group-hover:translate-x-1 transition-all"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Mitmachim Top -->
+        <div class="stacked-link" data-index="1" style="z-index: 3; transform: translateY(25px);">
+            <a href="https://mitmachim.top/user/tripleu" target="_blank"
+               class="block bg-black hover:bg-gray-950 p-3 sm:p-4 rounded-xl group border border-gray-800 hover:border-cyan-600 transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <img src="mimachim top image.png" alt="Mitmachim Top" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gray-800">
+                        <div>
+                            <p class="font-bold text-base sm:text-lg text-white">Mitmachim Top</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Connect with the community</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-600 group-hover:text-cyan-400 group-hover:translate-x-1 transition-all"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- GitHub -->
+        <div class="stacked-link" data-index="2" style="z-index: 2; transform: translateY(50px);">
+            <a href="https://github.com/TripleU613" target="_blank"
+               class="block bg-black hover:bg-gray-950 p-3 sm:p-4 rounded-xl group border border-gray-800 hover:border-gray-500 transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <img src="github image.png" alt="GitHub" class="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border border-gray-800">
+                        <div>
+                            <p class="font-bold text-base sm:text-lg text-white">GitHub</p>
+                            <p class="text-xs sm:text-sm text-gray-500">View my projects and contributions</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-600 group-hover:text-gray-300 group-hover:translate-x-1 transition-all"></i>
+                </div>
+            </a>
+        </div>
+
+        <!-- Discord -->
+        <div class="stacked-link" data-index="3" style="z-index: 1; transform: translateY(75px);">
+            <a href="https://discord.com/users/1328518549383282688" target="_blank"
+               class="block bg-black hover:bg-gray-950 p-3 sm:p-4 rounded-xl group border border-gray-800 hover:border-indigo-600 transition-all">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-3 sm:space-x-4">
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gray-900 border border-gray-800 rounded-lg flex items-center justify-center">
+                            <i class="fab fa-discord text-xl sm:text-2xl text-indigo-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-base sm:text-lg text-white">Discord</p>
+                            <p class="text-xs sm:text-sm text-gray-500">@tripleu613</p>
+                        </div>
+                    </div>
+                    <i class="fas fa-arrow-right text-gray-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Support Section -->
+<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+    <h2 class="text-lg sm:text-xl font-semibold mb-1 text-center">Support My Work</h2>
+    <p class="text-gray-400 text-xs sm:text-sm mb-4 sm:mb-6 text-center">Choose your preferred payment method</p>
+
+    <!-- Payment Method Buttons -->
+    <div class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 mb-4 sm:mb-6">
+        <button onclick="togglePayment('kofi')"
+                class="payment-btn payment-card group bg-black hover:bg-gray-950 p-4 sm:p-5 rounded-2xl border border-gray-800 hover:border-yellow-600/50 transition-all duration-300 relative overflow-hidden">
+            <div class="payment-icon-wrapper">
+                <i class="fas fa-mug-hot text-2xl sm:text-3xl text-yellow-400 group-hover:text-yellow-300 transition-colors duration-300"></i>
+            </div>
+            <p class="mt-2 sm:mt-3 font-medium text-xs text-gray-500">Ko-fi</p>
+            <div class="absolute inset-0 bg-gradient-to-t from-yellow-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        </button>
+
+        <button onclick="togglePayment('paypal')"
+                class="payment-btn payment-card group bg-black hover:bg-gray-950 p-4 sm:p-5 rounded-2xl border border-gray-800 hover:border-blue-600/50 transition-all duration-300 relative overflow-hidden">
+            <div class="payment-icon-wrapper">
+                <i class="fab fa-paypal text-2xl sm:text-3xl text-blue-400 group-hover:text-blue-300 transition-colors duration-300"></i>
+            </div>
+            <p class="mt-2 sm:mt-3 font-medium text-xs text-gray-500">PayPal</p>
+            <div class="absolute inset-0 bg-gradient-to-t from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        </button>
+
+        <button onclick="togglePayment('stripe')"
+                class="payment-btn payment-card group bg-black hover:bg-gray-950 p-4 sm:p-5 rounded-2xl border border-gray-800 hover:border-purple-600/50 transition-all duration-300 relative overflow-hidden">
+            <div class="payment-icon-wrapper">
+                <i class="fab fa-stripe text-2xl sm:text-3xl text-purple-400 group-hover:text-purple-300 transition-colors duration-300"></i>
+            </div>
+            <p class="mt-2 sm:mt-3 font-medium text-xs text-gray-500">Stripe</p>
+            <div class="absolute inset-0 bg-gradient-to-t from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        </button>
+
+        <button onclick="togglePayment('github')"
+                class="payment-btn payment-card group bg-black hover:bg-gray-950 p-4 sm:p-5 rounded-2xl border border-gray-800 hover:border-gray-600/50 transition-all duration-300 relative overflow-hidden">
+            <div class="payment-icon-wrapper">
+                <i class="fab fa-github text-2xl sm:text-3xl text-gray-400 group-hover:text-gray-300 transition-colors duration-300"></i>
+            </div>
+            <p class="mt-2 sm:mt-3 font-medium text-xs text-gray-500">GitHub</p>
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        </button>
+    </div>
+
+    <!-- Expandable Payment Sections -->
+    <div class="payment-sections">
+        <!-- Ko-fi Section -->
+        <div id="kofi-section" class="payment-section hidden">
+            <div class="bg-gradient-to-br from-black to-blue-900/20 p-6 rounded-2xl border border-gray-900 animate-slideDown">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300">Buy Me a Coffee - Ko-fi</h3>
+                    <button onclick="togglePayment('kofi', true)" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="flex justify-center">
+                    <iframe id='kofiframe'
+                            src='https://ko-fi.com/tripleu/?hidefeed=true&widget=true&embed=true&preview=true'
+                            style='border:none;width:100%;max-width:500px;background:#000;border-radius:8px;'
+                            height='500'
+                            title='tripleu'>
+                    </iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- PayPal Section -->
+        <div id="paypal-section" class="payment-section hidden">
+            <div class="bg-gradient-to-br from-black to-blue-900/20 p-6 rounded-2xl border border-gray-900 animate-slideDown">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300">Donate via PayPal</h3>
+                    <button onclick="togglePayment('paypal', true)" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="bg-black rounded-lg p-6 border border-gray-800">
+                    <div class="flex justify-center mb-4">
+                        <i class="fab fa-paypal text-5xl text-blue-500"></i>
+                    </div>
+                    <p class="text-center text-gray-400 mb-6">Support my work with a secure PayPal donation</p>
+
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-3 gap-3 mb-4">
+                            <a href="https://paypal.me/UsherWeiss/5" target="_blank"
+                               class="bg-gray-900 hover:bg-gray-800 p-3 rounded-lg text-center transition-all border border-gray-700 hover:border-blue-500">
+                                <span class="text-xl font-bold">$5</span>
+                            </a>
+                            <a href="https://paypal.me/UsherWeiss/10" target="_blank"
+                               class="bg-gray-900 hover:bg-gray-800 p-3 rounded-lg text-center transition-all border border-gray-700 hover:border-blue-500">
+                                <span class="text-xl font-bold">$10</span>
+                            </a>
+                            <a href="https://paypal.me/UsherWeiss/25" target="_blank"
+                               class="bg-gray-900 hover:bg-gray-800 p-3 rounded-lg text-center transition-all border border-gray-700 hover:border-blue-500">
+                                <span class="text-xl font-bold">$25</span>
+                            </a>
+                        </div>
+
+                        <div class="flex gap-2">
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-semibold">$</span>
+                                <input type="number"
+                                       id="paypal-custom-amount"
+                                       min="1"
+                                       placeholder="Enter amount"
+                                       class="w-full pl-8 pr-3 py-3 bg-gray-900 border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none">
+                            </div>
+                            <button onclick="donateCustomAmount()"
+                                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors text-white font-semibold">
+                                <i class="fab fa-paypal mr-2"></i>
+                                <span>Donate</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stripe Section -->
+        <div id="stripe-section" class="payment-section hidden">
+            <div class="bg-gradient-to-br from-black to-blue-900/20 p-6 rounded-2xl border border-gray-900 animate-slideDown">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300">One-Time Donation - Stripe</h3>
+                    <button onclick="togglePayment('stripe', true)" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="flex justify-center">
+                    <stripe-buy-button
+                        buy-button-id="buy_btn_1SIvK2Jwcr7fenMyjb3YPDHV"
+                        publishable-key="pk_live_51ReTvQJwcr7fenMyrmPriiaOZKFBW0NHUQGln7of5vt7Fu6cBsiB8wiLI1mXre3DVTcUz8YAJEjKWKB73ZfgopnR00GtQRdtHF">
+                    </stripe-buy-button>
+                </div>
+            </div>
+        </div>
+
+        <!-- GitHub Section -->
+        <div id="github-section" class="payment-section hidden">
+            <div class="bg-gradient-to-br from-black to-blue-900/20 p-6 rounded-2xl border border-gray-900 animate-slideDown">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-300">Become a GitHub Sponsor</h3>
+                    <button onclick="togglePayment('github', true)" class="text-gray-400 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="bg-black rounded-lg p-6 border border-gray-800">
+                    <div class="flex items-center justify-center mb-4">
+                        <i class="fab fa-github text-4xl"></i>
+                    </div>
+                    <h4 class="font-semibold mb-2">Support Open Source Development</h4>
+                    <p class="text-sm text-gray-400 mb-4">
+                        Sponsor my work on GitHub and get access to exclusive repositories,
+                        early releases, and priority support for my projects.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <a href="https://github.com/sponsors/TripleU613" target="_blank"
+                           class="inline-flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors">
+                            <i class="fab fa-github mr-2"></i>
+                            View Sponsor Tiers
+                        </a>
+                        <a href="https://github.com/TripleU613" target="_blank"
+                           class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors">
+                            <i class="fas fa-code-branch mr-2"></i>
+                            View My Projects
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+        <footer class="py-6 border-t border-gray-900 mt-8">
+            <div class="max-w-6xl mx-auto px-4">
+                <!-- Responsive Footer -->
+                <div class="text-center">
+                    <!-- Copyright on its own line on mobile -->
+                    <div class="text-gray-500 text-xs mb-3 md:mb-0 md:inline-block">
+                        © <span id="currentYear">2024</span> TripleUTech. All Rights Reserved.
+                    </div>
+                    <span class="hidden md:inline-block text-gray-700 mx-2">|</span>
+
+                    <!-- Links that wrap nicely on mobile -->
+                    <div class="flex flex-wrap justify-center items-center gap-2 md:gap-3 text-xs md:inline-flex">
+                        <a href="https://jtechforums.org/" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors px-1">
+                            Jtech Forums
+                        </a>
+                        <span class="text-gray-700 hidden sm:inline">•</span>
+                        <a href="https://installer.jtechforums.org/" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors px-1">
+                            MDM Installer
+                        </a>
+                        <span class="text-gray-700 hidden sm:inline">•</span>
+                        <a href="https://kvy.tripleu.org/login" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors px-1">
+                            KvyLock
+                        </a>
+                        <span class="text-gray-700 hidden sm:inline">•</span>
+                        <a href="https://jtechforums.org/privacy-policy" target="_blank" class="text-gray-400 hover:text-blue-400 transition-colors px-1">
+                            Privacy Policy
+                        </a>
+                    </div>
+                </div>
+                <p class="text-gray-600 text-xs text-center mt-3">
+                    Empowering communities through innovative technology solutions.
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 left-4 sm:left-auto max-w-xs sm:max-w-sm bg-green-600 text-white px-4 py-2 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">
+        <i class="fas fa-check-circle mr-2"></i>
+        <span id="toast-message">Copied to clipboard!</span>
+    </div>
+
+    <script>
+
+        // Update copyright year
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+        // Handle custom PayPal donation amount
+        function donateCustomAmount() {
+            const amount = document.getElementById("paypal-custom-amount").value;
+            if (amount && amount > 0) {
+                window.open("https://paypal.me/UsherWeiss/" + amount, "_blank");
+            } else {
+                alert("Please enter a valid amount");
+            }
+        }
+        // Toggle payment method sections
+        let currentPayment = null;
+
+        function togglePayment(method, fromCloseButton = false) {
+            const section = document.getElementById(method + "-section");
+            const allSections = document.querySelectorAll(".payment-section");
+            const allButtons = document.querySelectorAll(".payment-btn");
+            const clickedButton = event ? event.currentTarget : document.querySelector(`button[onclick*="togglePayment('${method}'"]`);
+
+            // If closing from X button or clicking the same payment method, close it
+            if (fromCloseButton || currentPayment === method) {
+                section.classList.add("hidden");
+                // Remove active class from all buttons when closing
+                allButtons.forEach(b => b.classList.remove("active"));
+                currentPayment = null;
+                return;
+            }
+
+            // Hide all sections and remove active class
+            allSections.forEach(s => s.classList.add("hidden"));
+            allButtons.forEach(b => b.classList.remove("active"));
+
+            // Show the selected section
+            section.classList.remove("hidden");
+            if (clickedButton) clickedButton.classList.add("active");
+            currentPayment = method;
+
+            // Scroll to the payment section
+            setTimeout(() => {
+                section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            }, 100);
+        }
+
+        // Initialize Lucide icons
+        document.addEventListener("DOMContentLoaded", function() {
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        });
+
+        // Profile Video Player - Play Every Time
+        document.addEventListener("DOMContentLoaded", function() {
+            const container = document.getElementById('profile-container');
+            const image = document.getElementById('profile-image');
+            const video = document.getElementById('profile-video');
+            const tripleUName = document.getElementById('triple-u-name');
+
+            let isCurrentlyPlaying = false;
+
+            // Function to play video (every time)
+            function playVideo(e) {
+                // Prevent default actions and stop propagation
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+
+                // Reset and restart video
+                video.currentTime = 0;
+
+                // If first time, set source
+                if (!video.src || !video.src.includes('profile-video.mp4')) {
+                    video.src = 'profile-video.mp4';
+                }
+
+                // Play the video
+                isCurrentlyPlaying = true;
+                video.load();
+
+                video.addEventListener('canplay', function() {
+                    container.classList.add('playing');
+                    video.play().then(function() {
+                        console.log('Video playing successfully');
+                    }).catch(function(error) {
+                        console.error('Video playback failed:', error);
+                        // Try playing without sound if autoplay failed
+                        video.muted = true;
+                        video.play().catch(function(err) {
+                            console.error('Muted playback also failed:', err);
+                            container.classList.remove('playing');
+                            isCurrentlyPlaying = false;
+                        });
+                    });
+                }, { once: true });
+
+                video.addEventListener('error', function() {
+                    console.error('Failed to load video');
+                    isCurrentlyPlaying = false;
+                }, { once: true });
+            }
+
+            // Add click listeners to both profile and TripleU name
+            container.addEventListener('click', playVideo);
+
+            // TripleU name click - play video AND shockwave
+            if (tripleUName) {
+                tripleUName.addEventListener('click', function(e) {
+                    playVideo(e);
+                    // Let shockwave effect also happen
+                });
+            }
+
+            // When video ends, reset to profile image
+            video.addEventListener('ended', function() {
+                isCurrentlyPlaying = false;
+                container.classList.remove('playing');
+                // Reset to show profile image again
+            });
+        });
+
+
+        // TripleU Splash Overlay Effect - No Movement
+        document.addEventListener("DOMContentLoaded", function() {
+            const tripleUName = document.getElementById('triple-u-name');
+
+            if (tripleUName) {
+                tripleUName.addEventListener('click', function(e) {
+                    // Don't prevent video from playing
+                    // e.preventDefault(); - removed to allow video to play
+
+                    // Get click position
+                    const rect = tripleUName.getBoundingClientRect();
+                    const x = rect.left + rect.width / 2;
+                    const y = rect.top + rect.height / 2;
+
+                    // Create multiple splash layers for depth
+                    const splashContainer = document.createElement('div');
+                    splashContainer.style.cssText = `
+                        position: fixed;
+                        top: 0;
+                        left: 0;
+                        width: 100vw;
+                        height: 100vh;
+                        pointer-events: none;
+                        z-index: 9999;
+                        overflow: hidden;
+                    `;
+
+                    // Create 5 ripple layers for depth - all deep blue
+                    const rippleLayers = [
+                        { delay: '0s', duration: '2s', color: 'rgba(0, 50, 255, 0.15)' },
+                        { delay: '0.1s', duration: '2.2s', color: 'rgba(0, 80, 255, 0.12)' },
+                        { delay: '0.2s', duration: '2.4s', color: 'rgba(0, 100, 255, 0.10)' },
+                        { delay: '0.3s', duration: '2.6s', color: 'rgba(30, 60, 255, 0.08)' },
+                        { delay: '0.4s', duration: '2.8s', color: 'rgba(50, 100, 255, 0.06)' }
+                    ];
+
+                    const splashes = rippleLayers.map((layer, index) => {
+                        const splash = document.createElement('div');
+                        splash.style.cssText = `
+                            position: absolute;
+                            top: ${y}px;
+                            left: ${x}px;
+                            width: 0;
+                            height: 0;
+                            background: radial-gradient(circle,
+                                ${layer.color} 0%,
+                                ${layer.color.replace('0.', '0.0')} 40%,
+                                transparent 80%);
+                            border-radius: 50%;
+                            transform: translate(-50%, -50%);
+                            animation: splash-expand-full ${layer.duration} ease-out ${layer.delay} forwards;
+                        `;
+                        return splash;
+                    });
+
+                    // Deep blue flash overlay - covers entire screen
+                    const flashOverlay = document.createElement('div');
+                    flashOverlay.style.cssText = `
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        width: 100%;
+                        height: 100%;
+                        background: radial-gradient(ellipse at ${x}px ${y}px,
+                            rgba(0, 50, 255, 0.20) 0%,
+                            rgba(0, 70, 255, 0.15) 15%,
+                            rgba(0, 90, 255, 0.10) 30%,
+                            rgba(0, 110, 255, 0.05) 50%,
+                            rgba(0, 130, 255, 0.02) 70%,
+                            transparent 100%);
+                        animation: flash-pulse 1.2s ease-out forwards;
+                    `;
+
+                    // Add styles
+                    const splashStyle = document.createElement('style');
+                    splashStyle.textContent = `
+                        @keyframes splash-expand-full {
+                            0% {
+                                width: 0;
+                                height: 0;
+                                opacity: 1;
+                            }
+                            50% {
+                                width: 200vmax;
+                                height: 200vmax;
+                                opacity: 0.8;
+                            }
+                            100% {
+                                width: 400vmax;
+                                height: 400vmax;
+                                opacity: 0;
+                            }
+                        }
+
+                        @keyframes flash-pulse {
+                            0% {
+                                opacity: 0;
+                                transform: scale(0.8);
+                            }
+                            15% {
+                                opacity: 1;
+                                transform: scale(1);
+                            }
+                            100% {
+                                opacity: 0;
+                                transform: scale(1.1);
+                            }
+                        }
+                    `;
+                    document.head.appendChild(splashStyle);
+
+                    // Build the splash
+                    splashContainer.appendChild(flashOverlay);
+                    splashes.forEach(splash => splashContainer.appendChild(splash));
+                    document.body.appendChild(splashContainer);
+
+                    // Clean up after animation (no refresh, just remove elements)
+                    setTimeout(() => {
+                        splashContainer.remove();
+                        splashStyle.remove();
+                    }, 3000);
+                });
+            }
+        });
+
+
+        // Stacked Links JavaScript - Click to expand/collapse
+        document.addEventListener("DOMContentLoaded", function() {
+            const stackedContainer = document.querySelector(".stacked-links-container");
+
+            function expandStack() {
+                stackedContainer.classList.add("expanded");
+            }
+
+            function collapseStack() {
+                stackedContainer.classList.remove("expanded");
+            }
+
+            if (stackedContainer) {
+                // Handle click events on stack
+                stackedContainer.addEventListener("click", function(e) {
+                    // If not expanded, expand on any click
+                    if (!this.classList.contains("expanded")) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        expandStack();
+                    }
+                    // If expanded and clicking on empty space (not a link), collapse
+                    else if (!e.target.closest("a")) {
+                        collapseStack();
+                    }
+                    // If expanded and clicking on a link, let it follow through
+                });
+
+                // Prevent link clicks when collapsed
+                const links = stackedContainer.querySelectorAll("a");
+                links.forEach(link => {
+                    link.addEventListener("click", function(e) {
+                        if (!stackedContainer.classList.contains("expanded")) {
+                            e.preventDefault();
+                            expandStack();
+                        }
+                    });
+                });
+            }
+        });
+        // Show toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
+            toast.style.opacity = '1';
+            toast.style.pointerEvents = 'auto';
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.pointerEvents = 'none';
+            }, 2000);
+        }
+
+        // Add entrance animations on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        // Observe all links
+        document.querySelectorAll('.hover-card').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Parallax effect for banner
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const banner = document.querySelector('.w-full.h-48');
+            if (banner) {
+                banner.style.transform = `translateY(${scrolled * 0.5}px)`;
+            }
+        });
+
+        // Electric Pulse Comet Effect - Snake-like Trail
+        document.addEventListener("DOMContentLoaded", function() {
+            // Create container for all comet elements
+            const cometContainer = document.createElement('div');
+            cometContainer.className = 'electric-comet-container';
+            document.body.appendChild(cometContainer);
+
+            // Create the comet element
+            const comet = document.createElement('div');
+            comet.className = 'electric-comet';
+            cometContainer.appendChild(comet);
+
+            // Only the three main content boxes
+            const containers = [
+                '.bg-black\\/30.backdrop-blur-sm.border.border-gray-900.rounded-2xl'
+            ];
+
+            let currentContainerIndex = 0;
+            let totalProgress = 0; // Progress along the entire perimeter (0 to 1)
+            let isJumping = false;
+            let animationPaused = false;
+
+            // Trail management
+            const trailSegments = [];
+            const maxTrailLength = 40; // Longer snake-like trail
+            const positionHistory = [];
+
+            // Helper function to get container bounds
+            function getContainerBounds(selector) {
+                const elements = document.querySelectorAll(selector);
+                const bounds = [];
+                elements.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    bounds.push({
+                        element: el,
+                        rect: rect,
+                        scrollTop: window.scrollY
+                    });
+                });
+                return bounds;
+            }
+
+            // Function to calculate position along a container border with smooth corners
+            function calculatePosition(container, progress) {
+                const rect = container.rect;
+                const scrollTop = container.scrollTop;
+                const cornerRadius = 16; // Approximate corner radius in pixels
+
+                const width = rect.width;
+                const height = rect.height;
+
+                // Calculate lengths of each segment
+                const topEdge = width - 2 * cornerRadius;
+                const rightEdge = height - 2 * cornerRadius;
+                const bottomEdge = width - 2 * cornerRadius;
+                const leftEdge = height - 2 * cornerRadius;
+                const cornerLength = (Math.PI / 2) * cornerRadius;
+
+                // Total perimeter
+                const totalPerimeter = topEdge + rightEdge + bottomEdge + leftEdge + (cornerLength * 4);
+
+                // Get distance along perimeter
+                const distance = progress * totalPerimeter;
+
+                let x, y;
+                let accumulated = 0;
+
+                // Start from top-left corner, go clockwise
+                // Top-left corner (starting point)
+                if (distance <= cornerLength) {
+                    const angle = -Math.PI + (distance / cornerLength) * (Math.PI / 2);
+                    x = rect.left + cornerRadius + cornerRadius * Math.cos(angle);
+                    y = rect.top + cornerRadius + cornerRadius * Math.sin(angle);
+                }
+                // Top edge
+                else if (distance <= (accumulated = cornerLength + topEdge)) {
+                    x = rect.left + cornerRadius + (distance - cornerLength);
+                    y = rect.top;
+                }
+                // Top-right corner
+                else if (distance <= (accumulated += cornerLength)) {
+                    const angle = -Math.PI/2 + ((distance - cornerLength - topEdge) / cornerLength) * (Math.PI / 2);
+                    x = rect.right - cornerRadius + cornerRadius * Math.cos(angle);
+                    y = rect.top + cornerRadius + cornerRadius * Math.sin(angle);
+                }
+                // Right edge
+                else if (distance <= (accumulated += rightEdge)) {
+                    x = rect.right;
+                    y = rect.top + cornerRadius + (distance - cornerLength * 2 - topEdge);
+                }
+                // Bottom-right corner
+                else if (distance <= (accumulated += cornerLength)) {
+                    const angle = 0 + ((distance - cornerLength * 2 - topEdge - rightEdge) / cornerLength) * (Math.PI / 2);
+                    x = rect.right - cornerRadius + cornerRadius * Math.cos(angle);
+                    y = rect.bottom - cornerRadius + cornerRadius * Math.sin(angle);
+                }
+                // Bottom edge
+                else if (distance <= (accumulated += bottomEdge)) {
+                    x = rect.right - cornerRadius - (distance - cornerLength * 3 - topEdge - rightEdge);
+                    y = rect.bottom;
+                }
+                // Bottom-left corner
+                else if (distance <= (accumulated += cornerLength)) {
+                    const angle = Math.PI/2 + ((distance - cornerLength * 3 - topEdge - rightEdge - bottomEdge) / cornerLength) * (Math.PI / 2);
+                    x = rect.left + cornerRadius + cornerRadius * Math.cos(angle);
+                    y = rect.bottom - cornerRadius + cornerRadius * Math.sin(angle);
+                }
+                // Left edge (back to start)
+                else {
+                    x = rect.left;
+                    y = rect.bottom - cornerRadius - (distance - cornerLength * 4 - topEdge - rightEdge - bottomEdge);
+                }
+
+                return {
+                    x: x,
+                    y: y + scrollTop
+                };
+            }
+
+            // Function to update trail
+            function updateTrail(x, y) {
+                // Add new position to history
+                positionHistory.push({ x, y, time: Date.now() });
+
+                // Keep only recent positions
+                if (positionHistory.length > maxTrailLength) {
+                    positionHistory.shift();
+                }
+
+                // Clear old trail segments
+                trailSegments.forEach(segment => segment.remove());
+                trailSegments.length = 0;
+
+                // Create new trail segments
+                positionHistory.forEach((pos, index) => {
+                    const segment = document.createElement('div');
+                    segment.className = 'comet-trail-segment';
+
+                    // More subtle opacity gradient for longer trail
+                    const opacity = (index / positionHistory.length) * 0.4; // Reduced from 0.6
+                    const size = 2 + (index / positionHistory.length) * 4; // Gradual size increase
+
+                    segment.style.left = `${pos.x - size/2}px`;
+                    segment.style.top = `${pos.y - size/2}px`;
+                    segment.style.width = `${size}px`;
+                    segment.style.height = `${size}px`;
+                    segment.style.opacity = opacity;
+                    segment.style.filter = `blur(${2.5 - (index/positionHistory.length) * 1.5}px)`;
+
+                    // Add fade-in effect for new trail at beginning
+                    if (positionHistory.length < 15 && index === positionHistory.length - 1) {
+                        segment.style.animation = 'fadeIn 0.5s ease-in';
+                    }
+
+                    cometContainer.insertBefore(segment, comet);
+                    trailSegments.push(segment);
+                });
+            }
+
+            // Animation loop
+            function animateComet() {
+                if (animationPaused) {
+                    requestAnimationFrame(animateComet);
+                    return;
+                }
+
+                const allContainers = [];
+                containers.forEach(selector => {
+                    allContainers.push(...getContainerBounds(selector));
+                });
+
+                if (allContainers.length === 0) {
+                    requestAnimationFrame(animateComet);
+                    return;
+                }
+
+                // Ensure current container index is valid
+                if (currentContainerIndex >= allContainers.length) {
+                    currentContainerIndex = 0;
+                }
+
+                const currentContainer = allContainers[currentContainerIndex];
+
+                if (!isJumping) {
+                    // Normal border traveling - continuous movement
+                    const position = calculatePosition(currentContainer, totalProgress);
+
+                    // Update comet position
+                    const cometX = position.x - 5;
+                    const cometY = position.y - window.scrollY - 5;
+                    comet.style.left = `${cometX}px`;
+                    comet.style.top = `${cometY}px`;
+                    comet.classList.add('traveling');
+                    comet.classList.remove('fading', 'appearing');
+
+                    // Update snake trail
+                    updateTrail(position.x, position.y - window.scrollY);
+
+                    // Update progress - MUCH SLOWER
+                    totalProgress += 0.0005; // Much slower movement (was 0.0015)
+
+                    // Check if we've completed a full loop
+                    if (totalProgress >= 1) {
+                        totalProgress = 0;
+                        isJumping = true;
+
+                        // Start fade out animation for comet and trail
+                        comet.classList.add('fading');
+                        comet.classList.remove('traveling');
+
+                        // Fade out all trail segments
+                        trailSegments.forEach(segment => {
+                            segment.classList.add('fading');
+                        });
+
+                        // Wait for fade out to complete, then jump
+                        setTimeout(() => {
+                            // Remove old trail segments
+                            trailSegments.forEach(segment => segment.remove());
+                            trailSegments.length = 0;
+                            positionHistory.length = 0;
+
+                            // Move to next container
+                            currentContainerIndex = (currentContainerIndex + 1) % allContainers.length;
+
+                            // Randomize starting position occasionally
+                            if (Math.random() > 0.7) {
+                                totalProgress = Math.random() * 0.3; // Start somewhere in first third
+                            }
+
+                            // Position comet at new location (still invisible)
+                            const nextContainer = allContainers[currentContainerIndex];
+                            const newPosition = calculatePosition(nextContainer, totalProgress);
+                            comet.style.left = `${newPosition.x - 5}px`;
+                            comet.style.top = `${newPosition.y - window.scrollY - 5}px`;
+
+                            // Start fade in animation
+                            setTimeout(() => {
+                                comet.classList.remove('fading');
+                                comet.classList.add('appearing');
+                                isJumping = false;
+                            }, 100);
+                        }, 800); // Wait for fade out
+                    }
+                }
+
+                requestAnimationFrame(animateComet);
+            }
+
+            // Start animation after a short delay
+            setTimeout(() => {
+                animateComet();
+            }, 3000);
+
+            // Pause animation when page is not visible
+            document.addEventListener('visibilitychange', () => {
+                animationPaused = document.hidden;
+                if (document.hidden) {
+                    // Clear trail when hidden
+                    positionHistory.length = 0;
+                    trailSegments.forEach(segment => segment.remove());
+                    trailSegments.length = 0;
+                }
+            });
+
+            // Handle window resize
+            let resizeTimer;
+            window.addEventListener('resize', () => {
+                animationPaused = true;
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(() => {
+                    animationPaused = false;
+                }, 300);
+            });
+        });
+    </script>
+</body>
+</html>
