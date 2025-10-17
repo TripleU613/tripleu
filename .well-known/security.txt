@@ -1,0 +1,18 @@
+# Security Policy
+# For more information: https://securitytxt.org/
+
+Contact: mailto:tripleuworld@gmail.com
+Contact: https://github.com/TripleU613
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://tripleu.org/.well-known/security.txt
+
+# Acknowledgments
+Acknowledgments: https://tripleu.org/thanks.html
+
+# Policy
+Policy: https://jtechforums.org/privacy-policy
+
+# Encryption
+# Our PGP key for encrypted communication (if needed)
+# Encryption: https://tripleu.org/pgp-key.txt

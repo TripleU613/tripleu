@@ -1,0 +1,43 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Developer: TripleU
+    Site: https://tripleu.org
+    GitHub: @TripleU613
+    Location: United States
+
+    AI Assistant: Claude (Anthropic)
+    Role: Development Assistant
+
+# THANKS
+
+    Community: Jtech Forums
+    Users: Mitmachim Top Community
+
+# TECHNOLOGY COLOPHON
+
+    Standards: HTML5, CSS3, JavaScript ES6+
+    Components: Tailwind CSS, Font Awesome, Lucide Icons
+    Fonts: Inter (Google Fonts)
+    Animations: Custom CSS & JavaScript
+    Special Effects: Electric Snake Comet, RGB Animations, Shockwave Effects
+
+    Payment Integrations:
+    - Ko-fi Widget
+    - PayPal SDK
+    - Stripe Buy Button
+    - GitHub Sponsors
+
+    Tools:
+    - Claude Code (Development)
+    - Git (Version Control)
+    - Python (Local Server)
+
+# SITE
+
+    Last update: 2024/01/16
+    Language: English
+    Doctype: HTML5
+    IDE: Claude Code with VSCode

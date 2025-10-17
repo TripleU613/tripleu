@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>500 - Server Error | TripleU</title>
+    <meta name="description" content="Internal server error - Something went wrong on our end.">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Server icon with smoke effect */
+        .server-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: smoke-rise 3s ease-out infinite;
+        }
+
+        .smoke:nth-child(2) {
+            animation-delay: 0.5s;
+            left: 20px;
+        }
+
+        .smoke:nth-child(3) {
+            animation-delay: 1s;
+            left: -20px;
+        }
+
+        @keyframes smoke-rise {
+            0% {
+                bottom: 0;
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            20% {
+                opacity: 0.5;
+            }
+            100% {
+                bottom: 100px;
+                opacity: 0;
+                transform: scale(1.5);
+            }
+        }
+
+        /* Error code with electric effect */
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ffaa00 0%, #ff6600 50%, #ffaa00 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: electric 2s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes electric {
+            0%, 100% {
+                filter: brightness(1);
+                text-shadow: 0 0 20px rgba(255, 170, 0, 0.5);
+            }
+            50% {
+                filter: brightness(1.2);
+                text-shadow: 0 0 40px rgba(255, 170, 0, 0.8);
+            }
+        }
+
+        /* Sparks effect */
+        .spark {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffaa00;
+            border-radius: 50%;
+            animation: spark-fly 1s ease-out forwards;
+        }
+
+        @keyframes spark-fly {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y));
+            }
+        }
+
+        /* Terminal style error log */
+        .terminal {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            max-width: 500px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .terminal::before {
+            content: '● ● ●';
+            position: absolute;
+            top: 0.5rem;
+            left: 1rem;
+            color: #666;
+            letter-spacing: 0.5rem;
+        }
+
+        .terminal-content {
+            margin-top: 1.5rem;
+        }
+
+        .blink {
+            animation: blink 1s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% {
+                opacity: 1;
+            }
+            51%, 100% {
+                opacity: 0;
+            }
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1a1a1a;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body class="bg-black text-gray-100 min-h-screen flex items-center justify-center">
+    <!-- Background gradient -->
+    <div class="fixed inset-0 bg-gradient-to-br from-black via-orange-900/5 to-black -z-10"></div>
+
+    <!-- Main content -->
+    <div class="text-center px-4 relative">
+        <!-- Server icon with smoke -->
+        <div class="server-container mb-8">
+            <div class="smoke"></div>
+            <div class="smoke"></div>
+            <div class="smoke"></div>
+            <svg class="w-32 h-32 mx-auto text-orange-500 relative z-10" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M13,18H11V16H13M13,14H11V10H13M20,2H4A2,2 0 0,0 2,4V16A2,2 0 0,0 4,18H8L12,22L16,18H20A2,2 0 0,0 22,16V4A2,2 0 0,0 20,2Z"/>
+            </svg>
+        </div>
+
+        <h1 class="error-code" id="errorCode">500</h1>
+
+        <h2 class="text-2xl sm:text-3xl font-bold mb-4 text-orange-400">Internal Server Error</h2>
+
+        <p class="text-gray-400 max-w-md mx-auto mb-6">
+            Oops! Something went wrong on our servers. Our engineers have been notified and are working on fixing this issue.
+        </p>
+
+        <!-- Terminal error log -->
+        <div class="terminal mb-8">
+            <div class="terminal-content text-left">
+                <p class="text-green-500">$ system.status</p>
+                <p class="text-red-500">Error: Unexpected server exception</p>
+                <p class="text-gray-500">Timestamp: <span id="timestamp"></span></p>
+                <p class="text-gray-500">Error ID: <span id="errorId"></span></p>
+                <p class="text-orange-500">Status: Engineers notified</p>
+                <p class="text-gray-400">
+                    <span class="text-green-500">$</span>
+                    <span class="blink">_</span>
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/" class="inline-flex items-center px-6 py-3 bg-orange-600 hover:bg-orange-700 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-orange-600/20">
+                <i class="fas fa-home mr-2"></i>
+                Go Home
+            </a>
+            <button onclick="location.reload()" class="inline-flex items-center px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded-lg transition-all duration-300 border border-gray-700">
+                <i class="fas fa-redo mr-2"></i>
+                Try Again
+            </button>
+        </div>
+
+        <!-- Status message -->
+        <div class="mt-8 text-xs text-gray-600">
+            <i class="fas fa-tools mr-1 text-yellow-500"></i>
+            Our team is working on resolving this issue
+        </div>
+    </div>
+
+    <script>
+        // Generate random error ID
+        function generateErrorId() {
+            return 'ERR_' + Math.random().toString(36).substr(2, 9).toUpperCase();
+        }
+
+        // Set timestamp
+        function setTimestamp() {
+            const now = new Date();
+            return now.toISOString();
+        }
+
+        // Initialize terminal data
+        document.getElementById('timestamp').textContent = setTimestamp();
+        document.getElementById('errorId').textContent = generateErrorId();
+
+        // Create sparks effect on hover
+        const errorCode = document.getElementById('errorCode');
+        errorCode.addEventListener('mouseenter', function() {
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => createSpark(this), i * 50);
+            }
+        });
+
+        function createSpark(element) {
+            const spark = document.createElement('div');
+            spark.className = 'spark';
+
+            const rect = element.getBoundingClientRect();
+            spark.style.left = `${rect.width / 2}px`;
+            spark.style.top = `${rect.height / 2}px`;
+
+            // Random direction
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 30 + Math.random() * 50;
+            spark.style.setProperty('--x', `${Math.cos(angle) * distance}px`);
+            spark.style.setProperty('--y', `${Math.sin(angle) * distance}px`);
+
+            element.appendChild(spark);
+
+            setTimeout(() => spark.remove(), 1000);
+        }
+
+        // Periodically create smoke
+        setInterval(() => {
+            const container = document.querySelector('.server-container');
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke';
+            smoke.style.left = `${Math.random() * 40 - 20}px`;
+            container.appendChild(smoke);
+            setTimeout(() => smoke.remove(), 3000);
+        }, 1500);
+    </script>
+</body>
+</html>
