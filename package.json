@@ -1,0 +1,24 @@
+{
+  "name": "tripleuorg",
+  "version": "1.0.0",
+  "description": "A beautiful, modern bio website with dark mode design, blue accents, and stunning animations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TripleU613/tripleu.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/TripleU613/tripleu/issues"
+  },
+  "homepage": "https://github.com/TripleU613/tripleu#readme",
+  "dependencies": {
+    "@vercel/analytics": "^1.5.0"
+  }
+}
