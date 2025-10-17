@@ -43,13 +43,14 @@ export async function GET(request) {
         timestamp: new Date().toISOString()
       };
 
-      // Look for post elements (Discourse-based forum)
+      // Look for post elements (Mitmachim uses NodeBB)
       const postSelectors = [
+        '.topic-title',  // Primary selector for Mitmachim
+        '.post-body .topic-title',
+        '.post-body',
+        '.activity-post',
         '.user-stream .user-stream-item',
-        '.topic-list .topic-list-item',
-        '.post-stream .topic-body',
-        '.activity-list-item',
-        '[class*="stream-item"]'
+        '.topic-list .topic-list-item'
       ];
 
       for (const selector of postSelectors) {
@@ -57,13 +58,24 @@ export async function GET(request) {
         if (posts.length > 0) {
           const post = posts[0];
 
-          // Extract title and URL from topic link
+          // Extract title and URL
           let title = '';
           let postUrl = '';
-          const titleLink = post.querySelector('.topic-title a, .title a, a.title, h3 a');
-          if (titleLink) {
-            title = titleLink.textContent.trim();
-            postUrl = titleLink.href;
+
+          // Check if this is a .topic-title element
+          if (post.classList && post.classList.contains('topic-title')) {
+            const link = post.querySelector('a');
+            if (link) {
+              title = link.textContent.trim();
+              postUrl = link.href;
+            }
+          } else {
+            // Try to find title link within the element
+            const titleLink = post.querySelector('.topic-title a, .title a, a.title, h3 a');
+            if (titleLink) {
+              title = titleLink.textContent.trim();
+              postUrl = titleLink.href;
+            }
           }
 
           // Extract content/excerpt

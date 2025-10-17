@@ -44,14 +44,14 @@ export default async function handler(req, res) {
     const postData = await page.evaluate(() => {
       const posts = [];
 
-      // Try multiple selectors for posts (Discourse-based forum)
+      // Try multiple selectors for posts (Mitmachim Top uses NodeBB)
       const postSelectors = [
+        '.topic-title',  // Primary selector for Mitmachim
+        '.post-body',
+        '.activity-post',
         '.user-stream-item',
         '.topic-list-item',
-        '.post-stream-item',
-        '.activity-item',
-        '[class*="stream-item"]',
-        'article.topic-list-item'
+        '.post-stream-item'
       ];
 
       let postElements = [];
@@ -67,23 +67,32 @@ export default async function handler(req, res) {
       if (postElements.length > 0) {
         const firstPost = postElements[0];
 
-        // Extract title - look for topic title link
-        const titleSelectors = [
-          '.topic-title a',
-          '.title a',
-          'a.title',
-          '.item-title a',
-          'h3 a',
-          '.topic-link'
-        ];
+        // Extract title - for Mitmachim, title is often directly in the element
         let title = '';
         let postUrl = '';
-        for (const selector of titleSelectors) {
-          const elem = firstPost.querySelector(selector);
-          if (elem) {
-            title = elem.textContent.trim();
-            postUrl = elem.href;
-            break;
+
+        // If we found a .topic-title element, it contains the link
+        if (firstPost.classList.contains('topic-title')) {
+          const link = firstPost.querySelector('a') || firstPost;
+          title = link.textContent?.trim() || firstPost.textContent?.trim() || '';
+          postUrl = link.href || '';
+        } else {
+          // Try other selectors
+          const titleSelectors = [
+            '.topic-title a',
+            '.title a',
+            'a.title',
+            '.item-title a',
+            'h3 a',
+            '.topic-link'
+          ];
+          for (const selector of titleSelectors) {
+            const elem = firstPost.querySelector(selector);
+            if (elem) {
+              title = elem.textContent.trim();
+              postUrl = elem.href;
+              break;
+            }
           }
         }
 
