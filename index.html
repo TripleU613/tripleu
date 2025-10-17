@@ -1130,15 +1130,26 @@
 
                         if (endpoint.type === 'user_actions' && data.user_actions?.length > 0) {
                             const action = data.user_actions[0];
-                            // Extract likes from various possible fields
+                            // Extract reactions from various possible fields
                             let likes = action.likes_received || action.like_count || 0;
 
-                            // If we have actions_summary, get like count from there
+                            // If we have actions_summary, sum ALL reactions (not just likes)
                             if (action.actions_summary && Array.isArray(action.actions_summary)) {
-                                const likeAction = action.actions_summary.find(a => a.id === 2); // ID 2 is typically 'like' in Discourse
-                                if (likeAction) {
-                                    likes = likeAction.count || likeAction.acted ? 1 : 0;
+                                let totalReactions = 0;
+                                action.actions_summary.forEach(a => {
+                                    // Count all positive reactions (likes, thanks, hearts, etc.)
+                                    if (a.count && a.count > 0) {
+                                        totalReactions += a.count;
+                                    }
+                                });
+                                if (totalReactions > 0) {
+                                    likes = totalReactions;
                                 }
+                            }
+
+                            // Also check for reaction_users_count
+                            if (action.reaction_users_count && action.reaction_users_count > 0) {
+                                likes = Math.max(likes, action.reaction_users_count);
                             }
 
                             latestPost = {
@@ -1160,12 +1171,22 @@
                                 const post = userPosts[0];
                                 let likes = post.like_count || post.likes || 0;
 
-                                // Check actions_summary for likes
+                                // Sum ALL reactions from actions_summary
                                 if (post.actions_summary && Array.isArray(post.actions_summary)) {
-                                    const likeAction = post.actions_summary.find(a => a.id === 2);
-                                    if (likeAction) {
-                                        likes = likeAction.count || 0;
+                                    let totalReactions = 0;
+                                    post.actions_summary.forEach(a => {
+                                        if (a.count && a.count > 0) {
+                                            totalReactions += a.count;
+                                        }
+                                    });
+                                    if (totalReactions > 0) {
+                                        likes = totalReactions;
                                     }
+                                }
+
+                                // Check reaction_users_count
+                                if (post.reaction_users_count && post.reaction_users_count > 0) {
+                                    likes = Math.max(likes, post.reaction_users_count);
                                 }
 
                                 latestPost = {
@@ -1183,12 +1204,22 @@
                             const activity = data[0];
                             let likes = activity.like_count || activity.likes || 0;
 
-                            // Check for actions_summary
+                            // Sum ALL reactions from actions_summary
                             if (activity.actions_summary && Array.isArray(activity.actions_summary)) {
-                                const likeAction = activity.actions_summary.find(a => a.id === 2);
-                                if (likeAction) {
-                                    likes = likeAction.count || 0;
+                                let totalReactions = 0;
+                                activity.actions_summary.forEach(a => {
+                                    if (a.count && a.count > 0) {
+                                        totalReactions += a.count;
+                                    }
+                                });
+                                if (totalReactions > 0) {
+                                    likes = totalReactions;
                                 }
+                            }
+
+                            // Check reaction_users_count
+                            if (activity.reaction_users_count && activity.reaction_users_count > 0) {
+                                likes = Math.max(likes, activity.reaction_users_count);
                             }
 
                             latestPost = {
@@ -1206,7 +1237,12 @@
                         if (latestPost) {
                             // Log the post data for debugging reactions
                             console.log('Latest post data:', latestPost);
-                            console.log('Raw API response sample:', data);
+                            console.log('Total reactions found:', latestPost.likes);
+                            if (data.user_actions && data.user_actions[0]?.actions_summary) {
+                                console.log('Actions summary:', data.user_actions[0].actions_summary);
+                            } else if (data.posts && data.posts[0]?.actions_summary) {
+                                console.log('Actions summary:', data.posts[0].actions_summary);
+                            }
 
                             // Clean up the excerpt
                             const cleanExcerpt = latestPost.excerpt ?
