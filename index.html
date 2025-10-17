@@ -402,8 +402,8 @@
             box-shadow: 0 0 15px rgba(156, 163, 175, 0.2) !important;
         }
 
-        /* Contact, Payment, Forum, and GitHub Card Animations */
-        .contact-card, .payment-card, .forum-post-card, .github-activity-card {
+        /* Contact, Payment, Forum, GitHub, and Mitmachim Card Animations */
+        .contact-card, .payment-card, .forum-post-card, .github-activity-card, .mitmachim-activity-card {
             animation: subtle-float 6s ease-in-out infinite;
         }
 
@@ -440,6 +440,12 @@
         /* GitHub activity card specific animation */
         .github-activity-card {
             animation-delay: 1s;
+            position: relative;
+        }
+
+        /* Mitmachim activity card specific animation */
+        .mitmachim-activity-card {
+            animation-delay: 1.5s;
             position: relative;
         }
 
@@ -482,6 +488,27 @@
         }
 
         .github-activity-card:hover::before {
+            opacity: 1;
+        }
+
+        .mitmachim-activity-card::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: 16px;
+            padding: 1px;
+            background: linear-gradient(45deg, transparent, rgba(0, 206, 201, 0.1), transparent);
+            background-size: 400% 400%;
+            animation: gradient-border 8s ease infinite;
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .mitmachim-activity-card:hover::before {
             opacity: 1;
         }
 
@@ -1007,6 +1034,18 @@
         </div>
     </div>
 </div>
+
+<!-- Latest Mitmachim Activity Section -->
+<div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest Mitmachim Post</h2>
+    <div id="latest-mitmachim" class="text-center">
+        <div class="animate-pulse">
+            <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto mb-2"></div>
+            <div class="h-3 bg-gray-800 rounded w-2/3 mx-auto"></div>
+        </div>
+    </div>
+</div>
 </div>
 
         <footer class="py-6 border-t border-gray-900 mt-8">
@@ -1505,6 +1544,133 @@
 
         // Fetch GitHub activity on page load
         fetchLatestGitHubActivity();
+
+        // Fetch Latest Mitmachim Activity
+        async function fetchLatestMitmachimActivity() {
+            const mitmachimContainer = document.getElementById('latest-mitmachim');
+
+            try {
+                // Use CORS proxy to fetch the page
+                const corsProxies = [
+                    { url: 'https://api.allorigins.win/get?url=', isWrapped: true },
+                    { url: 'https://corsproxy.io/?', isWrapped: false },
+                    { url: 'https://api.allorigins.win/raw?url=', isWrapped: false }
+                ];
+
+                const targetUrl = 'https://mitmachim.top/user/tripleu/posts';
+                let success = false;
+
+                for (const proxy of corsProxies) {
+                    if (success) break;
+
+                    try {
+                        console.log(`Trying Mitmachim with proxy: ${proxy.url}`);
+                        const response = await fetch(proxy.url + encodeURIComponent(targetUrl));
+
+                        if (!response.ok) continue;
+
+                        let html;
+                        if (proxy.isWrapped) {
+                            const wrapper = await response.json();
+                            if (wrapper.status?.http_code !== 200) continue;
+                            html = wrapper.contents;
+                        } else {
+                            html = await response.text();
+                        }
+
+                        // Parse the HTML
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // Look for posts - Mitmachim uses class names with "post"
+                        const posts = doc.querySelectorAll('[class*="post"]');
+
+                        if (posts && posts.length > 0) {
+                            // Extract latest post details
+                            const latestPost = posts[0];
+                            let postContent = latestPost.textContent.trim();
+
+                            // Try to extract more specific content
+                            const contentElem = latestPost.querySelector('.content, .message, p');
+                            if (contentElem) {
+                                postContent = contentElem.textContent.trim();
+                            }
+
+                            // Limit content length
+                            if (postContent.length > 150) {
+                                postContent = postContent.substring(0, 150) + '...';
+                            }
+
+                            // Try to find date
+                            let postDate = '';
+                            const dateElem = latestPost.querySelector('time, .date, [class*="time"]');
+                            if (dateElem) {
+                                postDate = dateElem.textContent.trim();
+                            }
+
+                            mitmachimContainer.innerHTML = `
+                                <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                                    <a href="https://mitmachim.top/user/tripleu" target="_blank" class="block">
+                                        <div class="flex items-start justify-between mb-3">
+                                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                                <i class="fas fa-users mr-2 text-gray-400"></i>
+                                                ${postContent || 'Recent Activity'}
+                                            </h3>
+                                            <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                                View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                                            </span>
+                                        </div>
+                                        <div class="text-gray-400 text-sm text-left mb-4">
+                                            <i class="fas fa-comments mr-1"></i> Mitmachim Top Community
+                                        </div>
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <span>
+                                                <i class="fas fa-clock mr-1"></i>
+                                                ${postDate || 'Recently'}
+                                            </span>
+                                            <span class="text-gray-500">
+                                                <i class="fas fa-users mr-1"></i>
+                                                Community Post
+                                            </span>
+                                        </div>
+                                    </a>
+                                </div>
+                            `;
+
+                            success = true;
+                            console.log('Successfully fetched Mitmachim activity');
+                            break;
+                        }
+
+                    } catch (error) {
+                        console.error(`Error with Mitmachim proxy ${proxy.url}:`, error);
+                        continue;
+                    }
+                }
+
+                if (!success) {
+                    // If scraping fails, show fallback with known recent activity
+                    showMitmachimFallback();
+                }
+
+            } catch (error) {
+                console.error('Error fetching Mitmachim activity:', error);
+                showMitmachimFallback();
+            }
+        }
+
+        function showMitmachimFallback() {
+            document.getElementById('latest-mitmachim').innerHTML = `
+                <a href="https://mitmachim.top/user/tripleu" target="_blank"
+                   class="inline-flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
+                    <i class="fas fa-users mr-2"></i>
+                    View My Mitmachim Profile
+                </a>
+            `;
+        }
+
+        // Fetch Mitmachim activity on page load
+        fetchLatestMitmachimActivity();
 
         // Handle custom PayPal donation amount
         function donateCustomAmount() {
