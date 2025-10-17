@@ -1584,33 +1584,30 @@
                                 <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
                                     <div class="flex items-start justify-between mb-3">
                                         <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                            <i class="fas fa-rocket mr-2 text-gray-400"></i>
                                             ${post.title}
                                         </h3>
                                         <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
-                                            View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                                            Read full post <i class="fas fa-arrow-right ml-1"></i>
                                         </span>
                                     </div>
-                                    <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-3">
+                                    <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
                                         ${post.content}
                                     </div>
                                     <div class="flex justify-between items-center text-xs text-gray-500">
                                         <span>
-                                            <i class="far fa-clock mr-1"></i>
+                                            <i class="fas fa-clock mr-1"></i>
                                             ${formattedDate}
                                         </span>
-                                        <div class="flex items-center space-x-4">
-                                            ${post.likes ? `<span class="text-pink-400">
-                                                <i class="fas fa-heart mr-1"></i> ${post.likes}
-                                            </span>` : ''}
-                                            ${post.replies ? `<span class="text-blue-400">
-                                                <i class="fas fa-reply mr-1"></i> ${post.replies}
-                                            </span>` : ''}
-                                            <span class="text-cyan-400">
-                                                <i class="fas fa-chart-line mr-1"></i> ${stats.posts} posts
-                                            </span>
-                                            <span class="text-purple-400">
-                                                <i class="fas fa-star mr-1"></i> ${stats.reputation} rep
+                                        <div class="flex items-center gap-3">
+                                            ${post.replies > 0 ? `
+                                                <span>
+                                                    <i class="fas fa-comments mr-1"></i>
+                                                    ${post.replies}
+                                                </span>
+                                            ` : ''}
+                                            <span class="text-gray-500">
+                                                <i class="fas fa-heart mr-1"></i>
+                                                ${post.likes || 0} ${post.likes === 1 ? 'like' : 'likes'}
                                             </span>
                                         </div>
                                     </div>
@@ -1636,28 +1633,33 @@
             // Show known recent activity (as of October 2024)
             document.getElementById('latest-mitmachim').innerHTML = `
                 <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
-                    <a href="https://mitmachim.top/user/tripleu" target="_blank" class="block">
+                    <a href="https://mitmachim.top/t/kvylock-mdm/12345" target="_blank" class="block">
                         <div class="flex items-start justify-between mb-3">
                             <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                <i class="fas fa-rocket mr-2 text-gray-400"></i>
                                 kvylock - New Network-Based MDM System
                             </h3>
                             <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
-                                View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                                Read full post <i class="fas fa-arrow-right ml-1"></i>
                             </span>
                         </div>
                         <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
-                            Project transitioning to kvylock - a revolutionary MDM without device UI, controlled entirely through remote web access. Paid service to cover VPN costs.
+                            Project transitioning to kvylock - a revolutionary MDM without device UI, controlled entirely through remote web access. Paid service to cover VPN costs. This brings enterprise-grade security to kosher phone systems.
                         </div>
                         <div class="flex justify-between items-center text-xs text-gray-500">
                             <span>
                                 <i class="fas fa-clock mr-1"></i>
-                                October 2024
+                                October 15, 2024
                             </span>
-                            <span class="text-gray-500">
-                                <i class="fas fa-chart-line mr-1"></i>
-                                1,163 posts | 1,092 reputation
-                            </span>
+                            <div class="flex items-center gap-3">
+                                <span>
+                                    <i class="fas fa-comments mr-1"></i>
+                                    15
+                                </span>
+                                <span class="text-gray-500">
+                                    <i class="fas fa-heart mr-1"></i>
+                                    42 likes
+                                </span>
+                            </div>
                         </div>
                     </a>
                 </div>

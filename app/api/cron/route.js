@@ -43,13 +43,13 @@ export async function GET(request) {
         timestamp: new Date().toISOString()
       };
 
-      // Look for post elements
+      // Look for post elements (Discourse-based forum)
       const postSelectors = [
-        '.post-stream .topic-body',
         '.user-stream .user-stream-item',
+        '.topic-list .topic-list-item',
+        '.post-stream .topic-body',
         '.activity-list-item',
-        '[class*="post-"]',
-        '.topic-list .topic-list-item'
+        '[class*="stream-item"]'
       ];
 
       for (const selector of postSelectors) {
@@ -57,19 +57,41 @@ export async function GET(request) {
         if (posts.length > 0) {
           const post = posts[0];
 
-          // Extract post details
-          const titleElem = post.querySelector('.title, .topic-title, h3, a[class*="title"]');
-          const contentElem = post.querySelector('.excerpt, .cooked, .user-stream-excerpt');
+          // Extract title and URL from topic link
+          let title = '';
+          let postUrl = '';
+          const titleLink = post.querySelector('.topic-title a, .title a, a.title, h3 a');
+          if (titleLink) {
+            title = titleLink.textContent.trim();
+            postUrl = titleLink.href;
+          }
+
+          // Extract content/excerpt
+          const contentElem = post.querySelector('.excerpt, .user-stream-excerpt, .cooked');
+          const content = contentElem?.textContent?.trim()?.replace(/\s+/g, ' ')?.substring(0, 250) || '';
+
+          // Extract date
           const dateElem = post.querySelector('time, .post-time, .relative-date');
-          const linkElem = post.querySelector('a[href*="/t/"], a[href*="/topic/"]');
+          const date = dateElem?.getAttribute('datetime') ||
+                      dateElem?.getAttribute('title') ||
+                      dateElem?.textContent?.trim() ||
+                      new Date().toISOString();
+
+          // Extract likes count (parse to number)
+          const likesElem = post.querySelector('.like-count, .likes, [class*="like"] .number');
+          const likes = parseInt(likesElem?.textContent?.match(/\d+/)?.[0] || '0');
+
+          // Extract replies count (parse to number)
+          const repliesElem = post.querySelector('.posts-count, .reply-count, [class*="reply"] .number');
+          const replies = parseInt(repliesElem?.textContent?.match(/\d+/)?.[0] || '0');
 
           data.posts.push({
-            title: titleElem?.textContent?.trim() || 'Recent Activity',
-            content: contentElem?.textContent?.trim()?.substring(0, 200) || '',
-            date: dateElem?.getAttribute('datetime') || dateElem?.textContent || new Date().toISOString(),
-            url: linkElem?.href || 'https://mitmachim.top/user/tripleu',
-            likes: post.querySelector('[class*="like"] .number')?.textContent || '0',
-            replies: post.querySelector('[class*="reply"] .number')?.textContent || '0'
+            title: title || 'Recent Activity',
+            content: content || 'Active in the Mitmachim community',
+            date: date,
+            url: postUrl || 'https://mitmachim.top/user/tripleu',
+            likes: likes,
+            replies: replies
           });
           break;
         }

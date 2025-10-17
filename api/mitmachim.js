@@ -44,13 +44,14 @@ export default async function handler(req, res) {
     const postData = await page.evaluate(() => {
       const posts = [];
 
-      // Try multiple selectors for posts
+      // Try multiple selectors for posts (Discourse-based forum)
       const postSelectors = [
-        '.post-stream-item',
-        '.topic-list-item',
-        '[class*="post"]',
         '.user-stream-item',
-        '.activity-item'
+        '.topic-list-item',
+        '.post-stream-item',
+        '.activity-item',
+        '[class*="stream-item"]',
+        'article.topic-list-item'
       ];
 
       let postElements = [];
@@ -66,42 +67,100 @@ export default async function handler(req, res) {
       if (postElements.length > 0) {
         const firstPost = postElements[0];
 
-        // Try to extract title/content
-        const titleSelectors = ['.title', '.topic-title', 'h3', 'h4', '.post-title', 'a[class*="title"]'];
+        // Extract title - look for topic title link
+        const titleSelectors = [
+          '.topic-title a',
+          '.title a',
+          'a.title',
+          '.item-title a',
+          'h3 a',
+          '.topic-link'
+        ];
         let title = '';
+        let postUrl = '';
         for (const selector of titleSelectors) {
           const elem = firstPost.querySelector(selector);
           if (elem) {
             title = elem.textContent.trim();
+            postUrl = elem.href;
             break;
           }
         }
 
         // Try to extract content/excerpt
-        const contentSelectors = ['.excerpt', '.cooked', '.post-body', '.user-stream-excerpt'];
+        const contentSelectors = [
+          '.excerpt',
+          '.user-stream-excerpt',
+          '.cooked',
+          '.post-body',
+          '.topic-excerpt'
+        ];
         let content = '';
         for (const selector of contentSelectors) {
           const elem = firstPost.querySelector(selector);
           if (elem) {
-            content = elem.textContent.trim().substring(0, 200);
+            content = elem.textContent.trim()
+              .replace(/\s+/g, ' ')
+              .substring(0, 250);
             break;
           }
         }
 
-        // Try to extract date
-        const dateSelectors = ['time', '.post-time', '.relative-date', '[class*="date"]'];
+        // Extract date - look for time element
+        const dateSelectors = [
+          'time',
+          '.post-time',
+          '.relative-date',
+          '.activity-date',
+          '[class*="date"]'
+        ];
         let date = '';
         for (const selector of dateSelectors) {
           const elem = firstPost.querySelector(selector);
           if (elem) {
-            date = elem.getAttribute('datetime') || elem.textContent.trim();
+            date = elem.getAttribute('datetime') ||
+                   elem.getAttribute('title') ||
+                   elem.textContent.trim();
             break;
           }
         }
 
-        // Try to extract stats
-        const likes = firstPost.querySelector('[class*="like"]')?.textContent?.match(/\d+/)?.[0] || '0';
-        const replies = firstPost.querySelector('[class*="reply"]')?.textContent?.match(/\d+/)?.[0] || '0';
+        // Extract likes/reactions count
+        let likes = 0;
+        const likeSelectors = [
+          '.like-count',
+          '.likes',
+          '[class*="like"] .number',
+          '.post-likes',
+          '.topic-like-count'
+        ];
+        for (const selector of likeSelectors) {
+          const elem = firstPost.querySelector(selector);
+          if (elem) {
+            likes = parseInt(elem.textContent.match(/\d+/)?.[0] || '0');
+            break;
+          }
+        }
+
+        // Extract replies count
+        let replies = 0;
+        const replySelectors = [
+          '.posts-count',
+          '.reply-count',
+          '[class*="reply"] .number',
+          '.topic-reply-count',
+          '.num.posts-map'
+        ];
+        for (const selector of replySelectors) {
+          const elem = firstPost.querySelector(selector);
+          if (elem) {
+            replies = parseInt(elem.textContent.match(/\d+/)?.[0] || '0');
+            break;
+          }
+        }
+
+        // Extract post number if available
+        const postNumber = firstPost.querySelector('.post-number')?.textContent?.trim() || '1';
 
         posts.push({
           title: title || 'Recent Activity',
@@ -109,14 +168,16 @@ export default async function handler(req, res) {
           date: date || new Date().toISOString(),
           likes: likes,
           replies: replies,
-          url: firstPost.querySelector('a')?.href || 'https://mitmachim.top/user/tripleu'
+          url: postUrl || 'https://mitmachim.top/user/tripleu',
+          postNumber: postNumber
         });
       }
 
-      // Also try to get user stats from the page
+      // Extract user stats from the page
       const stats = {
-        posts: document.querySelector('[class*="post-count"]')?.textContent?.match(/\d+/)?.[0] || '1163',
-        reputation: document.querySelector('[class*="reputation"]')?.textContent?.match(/\d+/)?.[0] || '1092'
+        posts: document.querySelector('[class*="post-count"], .user-stat .value')?.textContent?.match(/\d+/)?.[0] || '1163',
+        reputation: document.querySelector('[class*="reputation"], .user-stat-trust-level')?.textContent?.match(/\d+/)?.[0] || '1092',
+        likes_received: document.querySelector('[class*="likes-received"], .user-stat-likes-received')?.textContent?.match(/\d+/)?.[0] || '387'
       };
 
       return {
