@@ -1011,10 +1011,10 @@
     </div>
 </div>
 
-<!-- Latest Forum Activity Section -->
+<!-- Latest GitHub Activity Section -->
 <div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
-    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest Forum Post</h2>
-    <div id="latest-post" class="text-center">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest GitHub Activity</h2>
+    <div id="latest-github" class="text-center">
         <div class="animate-pulse">
             <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto mb-2"></div>
@@ -1023,10 +1023,10 @@
     </div>
 </div>
 
-<!-- Latest GitHub Activity Section -->
+<!-- Latest Forum Activity Section -->
 <div class="bg-black/30 backdrop-blur-sm border border-gray-900 rounded-2xl p-4 sm:p-6 mb-6">
-    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest GitHub Activity</h2>
-    <div id="latest-github" class="text-center">
+    <h2 class="text-lg font-semibold text-center text-gray-400 mb-4">My Latest Forum Post</h2>
+    <div id="latest-post" class="text-center">
         <div class="animate-pulse">
             <div class="h-4 bg-gray-800 rounded w-3/4 mx-auto mb-2"></div>
             <div class="h-3 bg-gray-800 rounded w-1/2 mx-auto mb-2"></div>
@@ -1285,7 +1285,7 @@
 
                             // Clean up the excerpt
                             const cleanExcerpt = latestPost.excerpt ?
-                                stripHtml(latestPost.excerpt).substring(0, 200) :
+                                limitText(stripHtml(latestPost.excerpt), 180) :
                                 'View the full post on the forum...';
 
                             latestPostContainer.innerHTML = `
@@ -1294,7 +1294,7 @@
                                        target="_blank" class="block">
                                         <div class="flex items-start justify-between mb-3">
                                             <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                                ${latestPost.title}
+                                                ${limitText(latestPost.title, 100)}
                                             </h3>
                                             <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
                                                 Read full post <i class="fas fa-arrow-right ml-1"></i>
@@ -1360,6 +1360,14 @@
             return tmp.textContent || tmp.innerText || '';
         }
 
+        // Helper function to limit text length
+        function limitText(text, maxLength = 150) {
+            if (!text) return '';
+            text = String(text).trim();
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength).trim() + '...';
+        }
+
         // Helper function to format date
         function formatDate(dateString) {
             const date = new Date(dateString);
@@ -1419,7 +1427,7 @@
                             const commits = latestEvent.payload.commits || [];
                             eventDescription = `Pushed ${commits.length} commit${commits.length !== 1 ? 's' : ''}`;
                             if (commits.length > 0 && commits[0].message) {
-                                eventDescription += `: "${commits[0].message.substring(0, 100)}${commits[0].message.length > 100 ? '...' : ''}"`;
+                                eventDescription += `: "${limitText(commits[0].message, 100)}"`;
                             }
                             eventIcon = 'fas fa-upload';
                             break;
@@ -1435,17 +1443,17 @@
                             break;
 
                         case 'IssuesEvent':
-                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} issue: "${latestEvent.payload.issue.title}"`;
+                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} issue: "${limitText(latestEvent.payload.issue.title, 80)}"`;
                             eventIcon = 'fas fa-exclamation-circle';
                             break;
 
                         case 'IssueCommentEvent':
-                            eventDescription = `Commented on issue: "${latestEvent.payload.issue.title}"`;
+                            eventDescription = `Commented on issue: "${limitText(latestEvent.payload.issue.title, 80)}"`;
                             eventIcon = 'fas fa-comment';
                             break;
 
                         case 'PullRequestEvent':
-                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} PR: "${latestEvent.payload.pull_request.title}"`;
+                            eventDescription = `${latestEvent.payload.action.charAt(0).toUpperCase() + latestEvent.payload.action.slice(1)} PR: "${limitText(latestEvent.payload.pull_request.title, 80)}"`;
                             eventIcon = 'fas fa-code-pull-request';
                             break;
 
@@ -1584,14 +1592,14 @@
                                 <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
                                     <div class="flex items-start justify-between mb-3">
                                         <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                            ${post.title}
+                                            ${limitText(post.title, 100)}
                                         </h3>
                                         <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
                                             Read full post <i class="fas fa-arrow-right ml-1"></i>
                                         </span>
                                     </div>
                                     <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
-                                        ${post.content}
+                                        ${limitText(post.content, 180)}
                                     </div>
                                     <div class="flex justify-between items-center text-xs text-gray-500">
                                         <span>
@@ -1635,7 +1643,7 @@
                             </span>
                         </div>
                         <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
-                            Project transitioning to kvylock - a revolutionary MDM without device UI, controlled entirely through remote web access. Paid service to cover VPN costs. This brings enterprise-grade security to kosher phone systems.
+                            Project transitioning to kvylock - a revolutionary MDM without device UI, controlled entirely through remote web access. Paid service to cover VPN costs. This brings enterprise-grade...
                         </div>
                         <div class="flex justify-between items-center text-xs text-gray-500">
                             <span>
