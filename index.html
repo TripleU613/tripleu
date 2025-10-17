@@ -830,7 +830,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-base sm:text-lg text-white">Discord</p>
-                            <p class="text-xs sm:text-sm text-gray-500">@tripleu613</p>
+                            <p class="text-xs sm:text-sm text-gray-500">Usually not available here</p>
                         </div>
                     </div>
                     <i class="fas fa-arrow-right text-gray-600 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all"></i>
@@ -1550,116 +1550,122 @@
             const mitmachimContainer = document.getElementById('latest-mitmachim');
 
             try {
-                // Use CORS proxy to fetch the page
-                const corsProxies = [
-                    { url: 'https://api.allorigins.win/get?url=', isWrapped: true },
-                    { url: 'https://corsproxy.io/?', isWrapped: false },
-                    { url: 'https://api.allorigins.win/raw?url=', isWrapped: false }
-                ];
+                // Fetch from our API endpoint
+                const apiUrl = window.location.hostname === 'localhost'
+                    ? 'http://localhost:3000/api/mitmachim-data'
+                    : '/api/mitmachim-data';
 
-                const targetUrl = 'https://mitmachim.top/user/tripleu/posts';
-                let success = false;
+                const response = await fetch(apiUrl);
 
-                for (const proxy of corsProxies) {
-                    if (success) break;
+                if (response.ok) {
+                    const result = await response.json();
 
-                    try {
-                        console.log(`Trying Mitmachim with proxy: ${proxy.url}`);
-                        const response = await fetch(proxy.url + encodeURIComponent(targetUrl));
+                    if (result.success && result.data.posts.length > 0) {
+                        const post = result.data.posts[0];
+                        const stats = result.data.stats;
 
-                        if (!response.ok) continue;
+                        // Format date
+                        let formattedDate = 'Recently';
+                        if (post.date) {
+                            const date = new Date(post.date);
+                            const now = new Date();
+                            const diff = now - date;
+                            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-                        let html;
-                        if (proxy.isWrapped) {
-                            const wrapper = await response.json();
-                            if (wrapper.status?.http_code !== 200) continue;
-                            html = wrapper.contents;
-                        } else {
-                            html = await response.text();
+                            if (days === 0) formattedDate = 'Today';
+                            else if (days === 1) formattedDate = 'Yesterday';
+                            else if (days < 7) formattedDate = `${days} days ago`;
+                            else if (days < 30) formattedDate = `${Math.floor(days / 7)} weeks ago`;
+                            else formattedDate = date.toLocaleDateString();
                         }
 
-                        // Parse the HTML
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(html, 'text/html');
-
-                        // Look for posts - Mitmachim uses class names with "post"
-                        const posts = doc.querySelectorAll('[class*="post"]');
-
-                        if (posts && posts.length > 0) {
-                            // Extract latest post details
-                            const latestPost = posts[0];
-                            let postContent = latestPost.textContent.trim();
-
-                            // Try to extract more specific content
-                            const contentElem = latestPost.querySelector('.content, .message, p');
-                            if (contentElem) {
-                                postContent = contentElem.textContent.trim();
-                            }
-
-                            // Limit content length
-                            if (postContent.length > 150) {
-                                postContent = postContent.substring(0, 150) + '...';
-                            }
-
-                            // Try to find date
-                            let postDate = '';
-                            const dateElem = latestPost.querySelector('time, .date, [class*="time"]');
-                            if (dateElem) {
-                                postDate = dateElem.textContent.trim();
-                            }
-
-                            mitmachimContainer.innerHTML = `
-                                <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
-                                    <a href="https://mitmachim.top/user/tripleu" target="_blank" class="block">
-                                        <div class="flex items-start justify-between mb-3">
-                                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
-                                                <i class="fas fa-users mr-2 text-gray-400"></i>
-                                                ${postContent || 'Recent Activity'}
-                                            </h3>
-                                            <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
-                                                View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                        mitmachimContainer.innerHTML = `
+                            <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                                <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
+                                    <div class="flex items-start justify-between mb-3">
+                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                            <i class="fas fa-rocket mr-2 text-gray-400"></i>
+                                            ${post.title}
+                                        </h3>
+                                        <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                            View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                                        </span>
+                                    </div>
+                                    <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-3">
+                                        ${post.content}
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs text-gray-500">
+                                        <span>
+                                            <i class="far fa-clock mr-1"></i>
+                                            ${formattedDate}
+                                        </span>
+                                        <div class="flex items-center space-x-4">
+                                            ${post.likes ? `<span class="text-pink-400">
+                                                <i class="fas fa-heart mr-1"></i> ${post.likes}
+                                            </span>` : ''}
+                                            ${post.replies ? `<span class="text-blue-400">
+                                                <i class="fas fa-reply mr-1"></i> ${post.replies}
+                                            </span>` : ''}
+                                            <span class="text-cyan-400">
+                                                <i class="fas fa-chart-line mr-1"></i> ${stats.posts} posts
+                                            </span>
+                                            <span class="text-purple-400">
+                                                <i class="fas fa-star mr-1"></i> ${stats.reputation} rep
                                             </span>
                                         </div>
-                                        <div class="text-gray-400 text-sm text-left mb-4">
-                                            <i class="fas fa-comments mr-1"></i> Mitmachim Top Community
-                                        </div>
-                                        <div class="flex justify-between items-center text-xs text-gray-500">
-                                            <span>
-                                                <i class="fas fa-clock mr-1"></i>
-                                                ${postDate || 'Recently'}
-                                            </span>
-                                            <span class="text-gray-500">
-                                                <i class="fas fa-users mr-1"></i>
-                                                Community Post
-                                            </span>
-                                        </div>
-                                    </a>
-                                </div>
-                            `;
+                                    </div>
+                                </a>
+                            </div>
+                        `;
 
-                            success = true;
-                            console.log('Successfully fetched Mitmachim activity');
-                            break;
-                        }
-
-                    } catch (error) {
-                        console.error(`Error with Mitmachim proxy ${proxy.url}:`, error);
-                        continue;
+                        console.log('Successfully fetched Mitmachim activity from API');
+                        return;
                     }
                 }
 
-                if (!success) {
-                    // If scraping fails, show fallback with known recent activity
-                    showMitmachimFallback();
-                }
+                // If API fails, show fallback
+                showMitmachimRecentActivity();
 
             } catch (error) {
                 console.error('Error fetching Mitmachim activity:', error);
-                showMitmachimFallback();
+                showMitmachimRecentActivity();
             }
         }
 
+        function showMitmachimRecentActivity() {
+            // Show known recent activity (as of October 2024)
+            document.getElementById('latest-mitmachim').innerHTML = `
+                <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                    <a href="https://mitmachim.top/user/tripleu" target="_blank" class="block">
+                        <div class="flex items-start justify-between mb-3">
+                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1">
+                                <i class="fas fa-rocket mr-2 text-gray-400"></i>
+                                kvylock - New Network-Based MDM System
+                            </h3>
+                            <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                View on Mitmachim <i class="fas fa-arrow-right ml-1"></i>
+                            </span>
+                        </div>
+                        <div class="forum-content text-gray-400 text-sm text-left mb-4 line-clamp-4">
+                            Project transitioning to kvylock - a revolutionary MDM without device UI, controlled entirely through remote web access. Paid service to cover VPN costs.
+                        </div>
+                        <div class="flex justify-between items-center text-xs text-gray-500">
+                            <span>
+                                <i class="fas fa-clock mr-1"></i>
+                                October 2024
+                            </span>
+                            <span class="text-gray-500">
+                                <i class="fas fa-chart-line mr-1"></i>
+                                1,163 posts | 1,092 reputation
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
         function showMitmachimFallback() {
+            // Simple fallback to profile link
             document.getElementById('latest-mitmachim').innerHTML = `
                 <a href="https://mitmachim.top/user/tripleu" target="_blank"
                    class="inline-flex items-center px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg transition-colors text-sm">
