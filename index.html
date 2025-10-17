@@ -1571,27 +1571,14 @@
                     if (result.success && result.data.posts.length > 0) {
                         const post = result.data.posts[0];
                         const stats = result.data.stats;
-
-                        // Format date with timestamp
-                        let formattedDate = 'Recently';
-                        if (post.date) {
-                            const date = new Date(post.date);
-                            const options = { 
-                                month: 'short', 
-                                day: 'numeric', 
-                                year: 'numeric',
-                                hour: 'numeric',
-                                minute: '2-digit',
-                                hour12: true
-                            };
-                            formattedDate = date.toLocaleString('en-US', options);
+// Format date - show time ago                        let formattedDate = 'Recently';                        if (post.date) {                            const date = new Date(post.date);                            const now = new Date();                            const diffMs = now - date;                            const diffMins = Math.floor(diffMs / (1000 * 60));                            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));                            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));                            if (diffMins < 1) formattedDate = 'Just now';                            else if (diffMins < 60) formattedDate = `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;                            else if (diffHours < 24) formattedDate = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;                            else if (diffDays < 7) formattedDate = `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;                            else formattedDate = date.toLocaleDateString();                        }
                         }
 
                         mitmachimContainer.innerHTML = `
                             <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
                                 <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
                                     <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
+                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-1 flex-1 max-w-[75%]">
                                             ${limitText(post.title, 100)}
                                         </h3>
                                         <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
@@ -1635,7 +1622,7 @@
                 <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
                     <a href="https://mitmachim.top/t/kvylock-mdm/12345" target="_blank" class="block">
                         <div class="flex items-center justify-between mb-3">
-                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-2 flex-1 max-w-[75%]">
+                            <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-1 flex-1 max-w-[75%]">
                                 kvylock - New Network-Based MDM System
                             </h3>
                             <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
