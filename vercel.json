@@ -1,7 +1,4 @@
 {
-  "analytics": {
-    "enable": true
-  },
   "headers": [
     {
       "source": "/(.*)",
