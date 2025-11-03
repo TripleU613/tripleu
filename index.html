@@ -1557,68 +1557,93 @@
 
             try {
                 const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
-                const dataUrl = isLocalHost
-                    ? 'data/mitmachim.json'
-                    : 'https://raw.githubusercontent.com/TripleU613/tripleu/master/data/mitmachim.json';
+                const dataSources = isLocalHost
+                    ? ['data/mitmachim.json']
+                    : ['data/mitmachim.json', 'https://raw.githubusercontent.com/TripleU613/tripleu/master/data/mitmachim.json'];
 
-                const response = await fetch(`${dataUrl}?cache=${Date.now()}`, { cache: 'no-store' });
+                let data = null;
 
-                if (response.ok) {
-                    const payload = await response.json();
-                    const data = payload?.data?.posts ? payload.data : payload;
+                for (const source of dataSources) {
+                    try {
+                        const url = `${source}${source.includes('?') ? '' : `?cache=${Date.now()}`}`;
+                        const response = await fetch(url, { cache: 'no-store' });
 
-                    if (Array.isArray(data.posts) && data.posts.length > 0) {
-                        const post = data.posts[0];
-                        const stats = data.stats || {};
-                        // Format date - show time ago
-                        let formattedDate = 'Recently';
-                        if (post.date) {
-                            const date = new Date(post.date);
-                            const now = new Date();
-                            const diffMs = now - date;
-                            const diffMins = Math.floor(diffMs / (1000 * 60));
-                            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-                            if (diffMins < 1) formattedDate = 'Just now';
-                            else if (diffMins < 60) formattedDate = `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
-                            else if (diffHours < 24) formattedDate = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
-                            else if (diffDays < 7) formattedDate = `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
-                            else formattedDate = date.toLocaleDateString();
-
+                        if (!response.ok) {
+                            console.warn(`Mitmachim source ${source} responded with status ${response.status}`);
+                            continue;
                         }
 
-                        mitmachimContainer.innerHTML = `
-                            <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
-                                <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
-                                    <div class="flex items-center justify-between mb-3">
-                                        <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-1 flex-1 max-w-[75%]">
-                                            ${limitText(post.title, 100)}
-                                        </h3>
-                                        <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
-                                            Read full post <i class="fas fa-arrow-right ml-1"></i>
-                                        </span>
-                                    </div>
-                                    <div class="forum-content text-gray-400 text-sm text-right mb-4 line-clamp-4" dir="rtl">
-                                        ${limitText(post.content, 180)}
-                                    </div>
-                                    <div class="flex justify-between items-center text-xs text-gray-500">
-                                        <span>
-                                            <i class="fas fa-clock mr-1"></i>
-                                            ${formattedDate}
-                                        </span>
-                                        <span class="text-gray-500">
-                                            <i class="fas fa-heart mr-1"></i>
-                                            ${post.likes || 0} ${post.likes === 1 ? 'like' : 'likes'}
-                                        </span>
-                                    </div>
-                                </a>
-                            </div>
-                        `;
+                        const rawText = await response.text();
+                        const sanitizedText = rawText.replace(/[\u0000-\u001F\u007F-\u009F]/g, '');
 
-                        console.log('Successfully fetched Mitmachim activity from GitHub data source');
-                        return;
+                        let payload = null;
+                        try {
+                            payload = JSON.parse(sanitizedText);
+                        } catch (parseError) {
+                            console.warn(`Failed to parse Mitmachim JSON from ${source}:`, parseError);
+                            continue;
+                        }
+
+                        data = payload?.data?.posts ? payload.data : payload;
+
+                        if (Array.isArray(data.posts) && data.posts.length > 0) {
+                            break;
+                        }
+                    } catch (fetchError) {
+                        console.warn(`Failed to load Mitmachim data from ${source}:`, fetchError);
                     }
+                }
+
+                if (data && Array.isArray(data.posts) && data.posts.length > 0) {
+                    const post = data.posts[0];
+
+                    // Format date - show time ago
+                    let formattedDate = 'Recently';
+                    if (post.date) {
+                        const date = new Date(post.date);
+                        const now = new Date();
+                        const diffMs = now - date;
+                        const diffMins = Math.floor(diffMs / (1000 * 60));
+                        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+                        if (diffMins < 1) formattedDate = 'Just now';
+                        else if (diffMins < 60) formattedDate = `${diffMins} ${diffMins === 1 ? 'minute' : 'minutes'} ago`;
+                        else if (diffHours < 24) formattedDate = `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+                        else if (diffDays < 7) formattedDate = `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+                        else formattedDate = date.toLocaleDateString();
+                    }
+
+                    mitmachimContainer.innerHTML = `
+                        <div class="mitmachim-activity-card bg-black/50 rounded-xl p-4 sm:p-6 border border-gray-800 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20">
+                            <a href="${post.url || 'https://mitmachim.top/user/tripleu'}" target="_blank" class="block">
+                                <div class="flex items-center justify-between mb-3">
+                                    <h3 class="font-semibold text-white text-left text-base sm:text-lg line-clamp-1 flex-1 max-w-[75%]">
+                                        ${limitText(post.title, 100)}
+                                    </h3>
+                                    <span class="text-blue-400 hover:text-blue-300 ml-2 flex-shrink-0 text-xs font-medium">
+                                        Read full post <i class="fas fa-arrow-right ml-1"></i>
+                                    </span>
+                                </div>
+                                <div class="forum-content text-gray-400 text-sm text-right mb-4 line-clamp-4" dir="rtl">
+                                    ${limitText(post.content, 180)}
+                                </div>
+                                <div class="flex justify-between items-center text-xs text-gray-500">
+                                    <span>
+                                        <i class="fas fa-clock mr-1"></i>
+                                        ${formattedDate}
+                                    </span>
+                                    <span class="text-gray-500">
+                                        <i class="fas fa-heart mr-1"></i>
+                                        ${post.likes || 0} ${post.likes === 1 ? 'like' : 'likes'}
+                                    </span>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+
+                    console.log('Successfully fetched Mitmachim activity from GitHub data source');
+                    return;
                 }
 
                 // If API fails, show fallback
