@@ -15,7 +15,7 @@
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="TripleU - Software Engineer">
     <meta property="og:description" content="Software Engineer & Kosher Software Enthusiast. CEO of Jtech Forums & TripleUTech.">
-    <meta property="og:image" content="/assets/images/profile pic.png">
+    <meta property="og:image" content="./assets/images/profile pic.png">
     <meta property="og:url" content="https://tripleu.org/">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="TripleU">
@@ -24,16 +24,14 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="TripleU - Software Engineer">
     <meta name="twitter:description" content="Software Engineer & Kosher Software Enthusiast. CEO of Jtech Forums & TripleUTech.">
-    <meta name="twitter:image" content="/assets/images/profile pic.png">
+    <meta name="twitter:image" content="./assets/images/profile pic.png">
     <meta name="twitter:site" content="@tripleu">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <link rel="icon" type="image/x-icon" href="/favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+    <link rel="alternate icon" type="image/png" href="./favicon.svg">
+    <link rel="apple-touch-icon" href="./favicon.svg">
+    <link rel="manifest" href="./site.webmanifest">
     <meta name="theme-color" content="#0066ff">
     <meta name="msapplication-TileColor" content="#0a0a0a">
 
@@ -1558,19 +1556,20 @@
             const mitmachimContainer = document.getElementById('latest-mitmachim');
 
             try {
-                // Fetch from our API endpoint
-                const apiUrl = window.location.hostname === 'localhost'
-                    ? 'http://localhost:3000/api/mitmachim-github'
-                    : '/api/mitmachim-github';
+                const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+                const dataUrl = isLocalHost
+                    ? 'data/mitmachim.json'
+                    : 'https://raw.githubusercontent.com/TripleU613/tripleu/master/data/mitmachim.json';
 
-                const response = await fetch(apiUrl);
+                const response = await fetch(`${dataUrl}?cache=${Date.now()}`, { cache: 'no-store' });
 
                 if (response.ok) {
-                    const result = await response.json();
+                    const payload = await response.json();
+                    const data = payload?.data?.posts ? payload.data : payload;
 
-                    if (result.success && result.data.posts.length > 0) {
-                        const post = result.data.posts[0];
-                        const stats = result.data.stats;
+                    if (Array.isArray(data.posts) && data.posts.length > 0) {
+                        const post = data.posts[0];
+                        const stats = data.stats || {};
                         // Format date - show time ago
                         let formattedDate = 'Recently';
                         if (post.date) {
@@ -1617,7 +1616,7 @@
                             </div>
                         `;
 
-                        console.log('Successfully fetched Mitmachim activity from API');
+                        console.log('Successfully fetched Mitmachim activity from GitHub data source');
                         return;
                     }
                 }
