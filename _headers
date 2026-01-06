@@ -10,7 +10,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=(self)
 
   # Content Security Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://unpkg.com https://storage.ko-fi.com https://js.stripe.com https://www.paypal.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://ko-fi.com https://www.paypal.com https://checkout.stripe.com https://github.com; connect-src 'self' https://api.github.com https://api.allorigins.win https://corsproxy.io https://cors.bridged.cc https://forums.jtechforums.org
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com https://unpkg.com https://storage.ko-fi.com https://js.stripe.com https://www.paypal.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; img-src 'self' data: https:; frame-src https://ko-fi.com https://www.paypal.com https://checkout.stripe.com https://js.stripe.com https://github.com; connect-src 'self' https://api.github.com https://api.allorigins.win https://corsproxy.io https://cors.bridged.cc https://forums.jtechforums.org
 
 # Cache Control for static assets
 /*.css
