@@ -1,7 +1,7 @@
 name = "tripleu-scraper-cron"
 main = "scraper-cron.js"
 compatibility_date = "2024-01-01"
-account_id = "2d433e3215fc8be53cc63fc504a5b993"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
 
 # Node.js compatibility for Puppeteer
 compatibility_flags = [ "nodejs_compat" ]
@@ -17,4 +17,4 @@ binding = "BROWSER"
 # KV namespace binding (same as API worker)
 [[kv_namespaces]]
 binding = "API_CACHE"
-id = "2d8d3595287446839ade7db196b6ab31"
+id = "YOUR_KV_NAMESPACE_ID"

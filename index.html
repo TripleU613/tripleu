@@ -1229,7 +1229,7 @@
 
         // Fetch Latest Forum Post from Cloudflare Worker
         async function fetchLatestForumPost() {
-            const WORKER_URL = 'https://tripleu-api-cache.usheraweiss.workers.dev/api/jtech-forum';
+            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/jtech-forum';
             const latestPostContainer = document.getElementById('latest-post');
 
             try {
@@ -1351,7 +1351,7 @@
 
         // Fetch Latest GitHub Activity from Cloudflare Worker
         async function fetchLatestGitHubActivity() {
-            const WORKER_URL = 'https://tripleu-api-cache.usheraweiss.workers.dev/api/github';
+            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/github';
             const githubContainer = document.getElementById('latest-github');
 
             try {
@@ -1441,7 +1441,7 @@
 
         // Fetch Latest Mitmachim Activity from Cloudflare Worker
         async function fetchLatestMitmachimActivity() {
-            const WORKER_URL = 'https://tripleu-api-cache.usheraweiss.workers.dev/api/mitmachim';
+            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/mitmachim';
             const mitmachimContainer = document.getElementById('latest-mitmachim');
 
             try {

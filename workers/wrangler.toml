@@ -1,7 +1,7 @@
 name = "tripleu-api-cache"
 main = "api-cache.js"
 compatibility_date = "2024-01-01"
-account_id = "2d433e3215fc8be53cc63fc504a5b993"
+account_id = "YOUR_CLOUDFLARE_ACCOUNT_ID"
 
 # Or use workers.dev subdomain for testing
 workers_dev = true
@@ -9,7 +9,7 @@ workers_dev = true
 # KV namespace for caching API responses
 [[kv_namespaces]]
 binding = "API_CACHE"
-id = "2d8d3595287446839ade7db196b6ab31"
+id = "YOUR_KV_NAMESPACE_ID"
 
 # Environment variables (secrets set via wrangler secret put)
 # JTECH_API_KEY - Set via: wrangler secret put JTECH_API_KEY
