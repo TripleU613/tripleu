@@ -4,6 +4,7 @@
   "description": "A beautiful, modern bio website with dark mode design, blue accents, and stunning animations.",
   "main": "index.js",
   "scripts": {
+    "dev": "http-server -p 8000 -c-1 -o",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -23,6 +24,7 @@
     "puppeteer-core": "^23.10.0"
   },
   "devDependencies": {
+    "http-server": "^14.1.1",
     "puppeteer": "^23.10.0"
   }
 }
