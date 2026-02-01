@@ -1227,9 +1227,12 @@
         // Update copyright year
         document.getElementById('currentYear').textContent = new Date().getFullYear();
 
+        // Cloudflare Worker base (override by setting window.TRIPLEU_WORKER_BASE before this script loads)
+        const WORKER_BASE = (window && window.TRIPLEU_WORKER_BASE) || 'https://tripleu-api-cache.usheraweiss.workers.dev';
+
         // Fetch Latest Forum Post from Cloudflare Worker
         async function fetchLatestForumPost() {
-            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/jtech-forum';
+            const WORKER_URL = `${WORKER_BASE}/api/jtech-forum`;
             const latestPostContainer = document.getElementById('latest-post');
 
             try {
@@ -1351,7 +1354,7 @@
 
         // Fetch Latest GitHub Activity from Cloudflare Worker
         async function fetchLatestGitHubActivity() {
-            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/github';
+            const WORKER_URL = `${WORKER_BASE}/api/github`;
             const githubContainer = document.getElementById('latest-github');
 
             try {
@@ -1441,7 +1444,7 @@
 
         // Fetch Latest Mitmachim Activity from Cloudflare Worker
         async function fetchLatestMitmachimActivity() {
-            const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev/api/mitmachim';
+            const WORKER_URL = `${WORKER_BASE}/api/mitmachim`;
             const mitmachimContainer = document.getElementById('latest-mitmachim');
 
             try {
