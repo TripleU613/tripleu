@@ -1,0 +1,20 @@
+name = "tripleu-scraper-cron"
+main = "scraper-cron.js"
+compatibility_date = "2024-01-01"
+account_id = "2d433e3215fc8be53cc63fc504a5b993"
+
+# Node.js compatibility for Puppeteer
+compatibility_flags = [ "nodejs_compat" ]
+
+# Cron triggers - Run every 5 hours
+[triggers]
+crons = ["0 */5 * * *"]
+
+# Browser Rendering binding for Puppeteer support
+[browser]
+binding = "BROWSER"
+
+# KV namespace binding (same as API worker)
+[[kv_namespaces]]
+binding = "API_CACHE"
+id = "2d8d3595287446839ade7db196b6ab31"

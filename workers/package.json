@@ -1,0 +1,18 @@
+{
+  "name": "tripleu-workers",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cloudflare Workers for TripleU portfolio",
+  "scripts": {
+    "deploy-api": "wrangler deploy --config wrangler.toml",
+    "deploy-scraper": "wrangler deploy --config wrangler-scraper.toml",
+    "deploy-all": "npm run deploy-api && npm run deploy-scraper"
+  },
+  "dependencies": {
+    "@cloudflare/puppeteer": "^0.0.10"
+  },
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

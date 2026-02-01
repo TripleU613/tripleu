@@ -178,50 +178,52 @@ async function handleGitHub(env, corsHeaders) {
 }
 
 /**
- * Handle Mitmachim data - Cache for 1 hour (since it updates every 5 hours via GitHub Actions)
+ * Handle Mitmachim data - Served from KV (updated by scraper cron worker every 5 hours)
  */
 async function handleMitmachim(env, corsHeaders) {
   const cacheKey = 'mitmachim-latest';
   const cacheTTL = 3600; // 1 hour
 
-  // Try to get from KV cache
+  // Get from KV (populated by scraper-cron worker)
   const cached = await env.API_CACHE.get(cacheKey, { type: 'json' });
-  if (cached && cached.timestamp && Date.now() - cached.timestamp < cacheTTL * 1000) {
-    return new Response(JSON.stringify(cached.data), {
+
+  if (!cached || !cached.data) {
+    // No data in KV yet - scraper hasn't run or failed
+    // Return fallback data
+    const fallbackData = {
+      posts: [{
+        title: 'אפליקציית ניהול וחסימה לאנדרואיד: TripleU MDM',
+        content: 'Active in the Mitmachim community',
+        date: new Date().toISOString(),
+        likes: 0,
+        url: 'https://mitmachim.top/user/tripleu'
+      }],
+      stats: {
+        posts: '1163',
+        reputation: '1092'
+      },
+      timestamp: new Date().toISOString()
+    };
+
+    return new Response(JSON.stringify(fallbackData), {
       headers: {
         ...corsHeaders,
         'Content-Type': 'application/json',
-        'X-Cache': 'HIT',
-        'Cache-Control': `public, max-age=${cacheTTL}`,
+        'X-Cache': 'FALLBACK',
+        'Cache-Control': `public, max-age=300`, // 5 minutes for fallback
       },
     });
   }
 
-  // Fetch fresh data from GitHub
-  const response = await fetch(
-    'https://raw.githubusercontent.com/TripleU613/tripleu/master/data/mitmachim.json',
-    {
-      headers: { 'User-Agent': 'TripleU-Portfolio/1.0' },
-    }
-  );
+  // Calculate cache age
+  const ageSeconds = Math.floor((Date.now() - cached.timestamp) / 1000);
 
-  if (!response.ok) {
-    throw new Error(`Mitmachim data fetch error: ${response.status}`);
-  }
-
-  const data = await response.json();
-
-  // Cache the result
-  await env.API_CACHE.put(cacheKey, JSON.stringify({
-    timestamp: Date.now(),
-    data: data,
-  }));
-
-  return new Response(JSON.stringify(data), {
+  return new Response(JSON.stringify(cached.data), {
     headers: {
       ...corsHeaders,
       'Content-Type': 'application/json',
-      'X-Cache': 'MISS',
+      'X-Cache': 'HIT',
+      'X-Cache-Age': `${ageSeconds}s`,
       'Cache-Control': `public, max-age=${cacheTTL}`,
     },
   });
