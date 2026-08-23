@@ -1,12 +1,13 @@
 {
-    "name": "TripleU - Software Engineer",
+    "name": "TripleU - Software Engineer & Kosher Tech Specialist",
     "short_name": "TripleU",
-    "description": "Software Engineer & Kosher Software Enthusiast - CEO of Jtech Forums & TripleUTech",
+    "description": "Software engineer, network engineer and kosher tech specialist. Owner of Jtech Forums LLC.",
     "icons": [
         {
-            "src": "./favicon.svg",
-            "sizes": "any",
-            "type": "image/svg+xml"
+            "src": "./assets/images/profile pic.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
         }
     ],
     "theme_color": "#0066ff",
